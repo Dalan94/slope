@@ -171,7 +171,7 @@ slope_figure_write_to_png (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return SLOPE_FALSE;
+    if (self == NULL) return SLOPE_ERROR;
 
     surf = cairo_image_surface_create(
             CAIRO_FORMAT_ARGB32, width, height);
@@ -211,7 +211,7 @@ slope_figure_write_to_svg (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return SLOPE_FALSE;
+    if (self == NULL) return SLOPE_ERROR;
 
     surf = cairo_svg_surface_create(
             filename, width, height);
@@ -250,7 +250,7 @@ slope_figure_write_to_pdf (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return SLOPE_FALSE;
+    if (self == NULL) return SLOPE_ERROR;
 
     surf = cairo_pdf_surface_create(filename, width, height);
     if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
@@ -288,7 +288,7 @@ slope_figure_write_to_ps (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return SLOPE_FALSE;
+    if (self == NULL) return SLOPE_ERROR;
 
     surf = cairo_ps_surface_create(
             filename, width, height);
