@@ -123,7 +123,6 @@ void
 _slope_xymetrics_draw (slope_metrics_t *metrics, cairo_t *cr,
                        const slope_rect_t *rect)
 {
-    slope_xymetrics_t *self = (slope_xymetrics_t*) metrics;
     slope_xymetrics_private_t *priv = SLOPE_XYMETRICS_GET_PRIVATE(metrics);
     slope_metrics_private_t *metrics_priv = (slope_metrics_private_t*) priv;
     slope_iterator_t *iter;
@@ -164,7 +163,6 @@ _slope_xymetrics_draw (slope_metrics_t *metrics, cairo_t *cr,
 void
 _slope_xymetrics_update (slope_metrics_t *metrics)
 {
-    slope_xymetrics_t *self = (slope_xymetrics_t*) metrics;
     slope_xymetrics_private_t *priv = SLOPE_XYMETRICS_GET_PRIVATE(metrics);
     slope_metrics_private_t *metrics_priv = (slope_metrics_private_t*) priv;
     slope_iterator_t *iterator = NULL;

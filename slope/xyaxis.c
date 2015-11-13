@@ -69,9 +69,8 @@ _slope_xyaxis_setup_draw (slope_item_t *item, cairo_t *cr,
                           const slope_metrics_t *metrics)
 {
   slope_xyaxis_t *axis = (slope_xyaxis_t*) item;
-  const slope_xymetrics_t *xymetr = (const slope_xymetrics_t*) metrics;
   slope_rect_t data_rect, fig_rect;
-  
+
   slope_metrics_get_data_rect(metrics, &data_rect);
   slope_metrics_get_figure_rect(metrics, &fig_rect);
 
@@ -137,9 +136,8 @@ _slope_xyaxis_draw_top (slope_item_t *item, cairo_t *cr,
                         const slope_metrics_t *metrics)
 {
   slope_xyaxis_t *axis = (slope_xyaxis_t*) item;
-  const slope_xymetrics_t *xymetr = (const slope_xymetrics_t*) metrics;
   slope_rect_t data_rect, fig_rect;
-  
+
   slope_metrics_get_data_rect(metrics, &data_rect);
   slope_metrics_get_figure_rect(metrics, &fig_rect);
 
@@ -184,9 +182,8 @@ _slope_xyaxis_draw_bottom (slope_item_t *item, cairo_t *cr,
                            const slope_metrics_t *metrics)
 {
   slope_xyaxis_t *axis = (slope_xyaxis_t*) item;
-  const slope_xymetrics_t *xymetr = (const slope_xymetrics_t*) metrics;
   slope_rect_t data_rect, fig_rect;
-  
+
   slope_metrics_get_data_rect(metrics, &data_rect);
   slope_metrics_get_figure_rect(metrics, &fig_rect);
 
@@ -231,9 +228,8 @@ _slope_xyaxis_draw_left (slope_item_t *item, cairo_t *cr,
                          const slope_metrics_t *metrics)
 {
   slope_xyaxis_t *axis = (slope_xyaxis_t*) item;
-  const slope_xymetrics_t *xymetr = (const slope_xymetrics_t*) metrics;
   slope_rect_t data_rect, fig_rect;
-  
+
   slope_metrics_get_data_rect(metrics, &data_rect);
   slope_metrics_get_figure_rect(metrics, &fig_rect);
 
@@ -283,9 +279,8 @@ _slope_xyaxis_draw_right (slope_item_t *item, cairo_t *cr,
                           const slope_metrics_t *metrics)
 {
   slope_xyaxis_t *axis = (slope_xyaxis_t*) item;
-  const slope_xymetrics_t *xymetr = (const slope_xymetrics_t*) metrics;
   slope_rect_t data_rect, fig_rect;
-  
+
   slope_metrics_get_data_rect(metrics, &data_rect);
   slope_metrics_get_figure_rect(metrics, &fig_rect);
 

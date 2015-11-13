@@ -165,7 +165,7 @@ _slope_funcplot_draw (slope_item_t *item, cairo_t *cr,
   }
   cairo_set_line_width(cr,self->line_width);
 
-  switch (self->scatter) {
+  switch ((int)self->scatter) {
     case SLOPE_LINE:
       _slope_funcplot_draw_line(item, cr, metrics);
       break;
@@ -496,7 +496,7 @@ _slope_funcplot_draw_thumb (slope_item_t *item,
   }
   cairo_set_line_width(cr,self->line_width);
 
-  switch (self->scatter)
+  switch ((int)self->scatter)
   {
     case SLOPE_LINE:
       cairo_move_to(cr, pos->x - 10.0, pos->y - 3.0);

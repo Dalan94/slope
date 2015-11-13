@@ -87,11 +87,10 @@ G_DEFINE_TYPE(SlopeView, slope_view, GTK_TYPE_DRAWING_AREA);
 static void
 slope_view_class_init (SlopeViewClass *klass)
 {
-  GtkWidgetClass *widget_klass = GTK_WIDGET_CLASS (klass);
   GObjectClass *object_klass = G_OBJECT_CLASS(klass);
 
   object_klass->finalize = _on_finalize;
-  
+
   g_type_class_add_private(klass, sizeof(SlopeViewPrivate));
 }
 

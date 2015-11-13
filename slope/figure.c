@@ -77,7 +77,6 @@ slope_figure_destroy (slope_figure_t *figure)
 void
 _slope_figure_destroy (slope_object_t *object)
 {
-    slope_figure_t *self = (slope_figure_t*) object;
     slope_figure_private_t *data = SLOPE_FIGURE_GET_PRIVATE(object);
 
     slope_item_destroy (data->legend);
@@ -172,7 +171,7 @@ slope_figure_write_to_png (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return;
+    if (self == NULL) return SLOPE_FALSE;
 
     surf = cairo_image_surface_create(
             CAIRO_FORMAT_ARGB32, width, height);
@@ -212,7 +211,7 @@ slope_figure_write_to_svg (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return;
+    if (self == NULL) return SLOPE_FALSE;
 
     surf = cairo_svg_surface_create(
             filename, width, height);
@@ -251,7 +250,7 @@ slope_figure_write_to_pdf (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return;
+    if (self == NULL) return SLOPE_FALSE;
 
     surf = cairo_pdf_surface_create(filename, width, height);
     if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
@@ -289,7 +288,7 @@ slope_figure_write_to_ps (
     cairo_t *cr;
     slope_rect_t rect;
 
-    if (self == NULL) return;
+    if (self == NULL) return SLOPE_FALSE;
 
     surf = cairo_ps_surface_create(
             filename, width, height);
@@ -355,7 +354,7 @@ slope_figure_notify_appearence_change (
     (void) item; /* reserved for possible future use */
 
     data = SLOPE_FIGURE_GET_PRIVATE(self);
-    
+
     if (data->change_callback != NULL) {
         data->change_callback(self);
     }
@@ -374,9 +373,9 @@ slope_figure_notify_data_change (
 
     data = SLOPE_FIGURE_GET_PRIVATE(self);
     metrics = slope_item_get_metrics(item);
-    
+
     slope_metrics_update(metrics);
-    
+
     if (data->change_callback != NULL) {
         data->change_callback(self);
     }
@@ -452,7 +451,7 @@ slope_figure_get_default_font (slope_figure_t *self)
     if (self == NULL) return NULL;
 
     data = SLOPE_FIGURE_GET_PRIVATE(self);
-    
+
     return data->default_font;
 }
 
