@@ -57,6 +57,13 @@ slope_bool_t slope_item_get_visible (const slope_item_t *self)
     return SLOPE_ITEM_GET_PRIVATE(self)->visible;
 }
 
+void slope_item_set_visible (const slope_item_t *self,slope_bool_t visible)
+{
+	if (self == NULL)
+        return;
+	SLOPE_ITEM_GET_PRIVATE(self)->visible = visible;
+}
+
 
 slope_bool_t slope_item_has_thumb (const slope_item_t *self)
 {
@@ -120,10 +127,10 @@ const char* slope_item_get_name (const slope_item_t *self)
 void slope_item_set_name (slope_item_t *self, const char *name)
 {
     slope_item_private_t *priv;
-    
+
     if (self == NULL)
         return;
-    
+
     priv = SLOPE_ITEM_GET_PRIVATE(self);
     if (priv->name != NULL)
         SLOPE_FREE(priv->name);

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     slope_item_t *cos_series;
     slope_item_t *axis;
     slope_sampler_t *sampler;
-    
+
     const double step = 2.0*M_PI/(NPTS-1);
     double x[NPTS], y[NPTS];
     int k;
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     /* create series (plot) representation and place it in a scale */
     cos_series = slope_series_new_for_data(x, y, NPTS, "cos(x)", SLOPE_BLUE, SLOPE_ORANGE, SLOPE_SERIES_AREAUNDER);
-    
+
     /* create a linear (cartesian) scale and set it's axis labels */
     scale = slope_linear_new("linear scale");
     slope_linear_set_axis_labels(scale, "X (RADIANS)", "Cos(X)", "","");
@@ -56,6 +56,16 @@ int main(int argc, char *argv[])
     figure = slope_widget_get_figure(slope);
     slope_figure_set_name(figure, "Area under a cossine curve");
     slope_figure_add_scale(figure, scale);
+
+    int res1 = slope_figure_write_to_png(figure,"cos.png",800,500);
+    int res2 = slope_figure_write_to_svg(figure,"cos.svg",800,500);
+    int res3 = slope_figure_write_to_pdf(figure,"cos.pdf",800,500);
+    int res4 = slope_figure_write_to_png(figure,"/cos.png",800,500);
+    int res5 = slope_figure_write_to_svg(figure,"/cos.svg",800,500);
+    int res6 = slope_figure_write_to_pdf(figure,"/cos.pdf",800,500);
+    printf("res1: %d\nres2: %d\nres3: %d\nres4: %d\nres5: %d\nres6: %d",res1,res2,res3,res4,res5,res6);
+    slope_item_set_visible(SLOPE_ITEM(cos_series),SLOPE_FALSE);
+    printf("\n%d",slope_item_get_visible(SLOPE_ITEM(cos_series)));
 
     gtk_container_add(GTK_CONTAINER(window), slope);
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 350);

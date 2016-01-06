@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cairo-svg.h>
+#include <cairo-pdf.h>
+
 
 static void _slope_figure_draw (slope_figure_t*, const slope_rect_t*, cairo_t*);
 static void _slope_figure_set_color_scheme (slope_figure_t*, slope_color_t, slope_color_t, slope_color_t);
@@ -34,7 +37,7 @@ static slope_figure_class_t* _slope_figure_get_class ()
 {
     static slope_figure_class_t figure_class;
     static slope_bool_t first_call = SLOPE_TRUE;
-    
+
     if (first_call) {
         figure_class.init = slope_figure_init;
         figure_class.finalize = slope_figure_finalize;
@@ -49,10 +52,10 @@ static slope_figure_class_t* _slope_figure_get_class ()
 slope_figure_t* slope_figure_new (const char *name)
 {
     slope_figure_t *self = SLOPE_ALLOC(slope_figure_t);
-    
+
     self->_class = _slope_figure_get_class();
     SLOPE_FIGURE_GET_CLASS(self)->init(self);
-    
+
     slope_figure_set_name(self, name);
     return self;
 }
@@ -61,7 +64,7 @@ slope_figure_t* slope_figure_new (const char *name)
 void slope_figure_init (slope_figure_t *self)
 {
     slope_figure_private_t *priv = SLOPE_ALLOC(slope_figure_private_t);
-    
+
     self->_private = priv;
     priv->scale_list = slope_list_new();
     priv->legend = slope_legend_new(self);
@@ -121,7 +124,7 @@ static void _slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, 
     slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
     slope_iterator_t *scale_iter;
     cairo_text_extents_t txt_ext;
-    
+
     /* clip to avoid drawing outside target rect */
     slope_rect_copy(&priv->rect, rect);
     cairo_save(cr);
@@ -142,7 +145,7 @@ static void _slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, 
                            CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 12);
     #endif
-    
+
     /* draw data contents */
     SLOPE_LIST_FOREACH (scale_iter, priv->scale_list) {
         slope_scale_t *scale = SLOPE_SCALE(slope_iterator_data(scale_iter));
@@ -167,7 +170,7 @@ static void _slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, 
 }
 
 
-void slope_figure_write_to_png (slope_figure_t *self,
+int slope_figure_write_to_png (slope_figure_t *self,
                                 const char *filename,
                                 int width, int height)
 {
@@ -178,11 +181,85 @@ void slope_figure_write_to_png (slope_figure_t *self,
     slope_rect_t rect;
     slope_rect_set(&rect, 0.0, 0.0, (double) width, (double) height);
     slope_figure_draw(self, &rect, cr);
-    cairo_surface_write_to_png(image, filename);
+    if (cairo_surface_write_to_png(image, filename) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(image);
+        cairo_destroy(cr);
+        return -1;
+    }
     cairo_surface_destroy(image);
     cairo_destroy(cr);
+    return 0;
 }
 
+int slope_figure_write_to_svg (slope_figure_t *self,
+                                const char *filename,
+                                int width, int height)
+{
+	cairo_surface_t *surf;
+    cairo_t *cr;
+    slope_rect_t rect;
+
+    surf = cairo_svg_surface_create(
+            filename, width, height);
+    if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
+        return -1;
+    }
+
+    cr = cairo_create(surf);
+    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(surf);
+        return -1;
+    }
+
+    slope_rect_set(&rect, 0.0, 0.0, width, height);
+    slope_figure_draw(self, &rect, cr);
+
+    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(surf);
+        cairo_destroy(cr);
+        return -1;
+    }
+
+    cairo_surface_destroy(surf);
+    cairo_destroy(cr);
+
+	return 0;
+}
+
+int slope_figure_write_to_pdf (slope_figure_t *self,
+                                const char *filename,
+                                int width, int height)
+{
+	cairo_surface_t *surf;
+    cairo_t *cr;
+    slope_rect_t rect;
+
+    surf = cairo_pdf_surface_create(
+            filename, width, height);
+    if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
+        return -1;
+    }
+
+    cr = cairo_create(surf);
+    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(surf);
+        return -1;
+    }
+
+    slope_rect_set(&rect, 0.0, 0.0, width, height);
+    slope_figure_draw(self, &rect, cr);
+
+    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(surf);
+        cairo_destroy(cr);
+        return -1;
+    }
+
+    cairo_surface_destroy(surf);
+    cairo_destroy(cr);
+
+	return 0;
+}
 
 void slope_figure_set_name (slope_figure_t *self, const char *name)
 {

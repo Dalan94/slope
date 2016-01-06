@@ -48,6 +48,7 @@ struct _slope_item {
 void slope_item_destroy (slope_item_t *self);
 void slope_item_init (slope_item_t *self);
 void slope_item_finalize (slope_item_t *self);
+void slope_item_set_visible (const slope_item_t *self,slope_bool_t visible);
 slope_bool_t slope_item_get_visible (const slope_item_t *self);
 slope_bool_t slope_item_has_thumb (const slope_item_t *self);
 void slope_item_set_name (slope_item_t *self, const char *name);

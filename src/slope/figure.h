@@ -57,7 +57,9 @@ const char* slope_figure_get_name (const slope_figure_t *self);
 void slope_figure_get_rect (const slope_figure_t *self, slope_rect_t *rect);
 void slope_figure_add_scale (slope_figure_t *self, slope_scale_t *scale);
 void slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, cairo_t *cr);
-void slope_figure_write_to_png (slope_figure_t *self, const char *filename, int width, int height);
+int slope_figure_write_to_png (slope_figure_t *self, const char *filename, int width, int height);
+int slope_figure_write_to_svg (slope_figure_t *self, const char *filename, int width, int height);
+int slope_figure_write_to_pdf (slope_figure_t *self, const char *filename, int width, int height);
 void slope_figure_set_color_scheme (slope_figure_t *self, slope_color_t background,
                                     slope_color_t foreground, slope_color_t extra_color);
 
