@@ -19,6 +19,7 @@
  */
 
 #include <slope/series_p.h>
+#include <slope/scale.h>
 #include <stdlib.h>
 
 
@@ -36,7 +37,7 @@ static slope_item_class_t* _slope_series_get_class()
 {
     static slope_item_class_t item_class;
     static slope_bool_t first_call = SLOPE_TRUE;
-    
+
     if (first_call) {
         item_class.init = slope_series_init;
         item_class.finalize = slope_series_finalize;
@@ -54,13 +55,13 @@ slope_item_t* slope_series_new (const char *name)
 {
     slope_series_t *self = SLOPE_ALLOC(slope_series_t);
     slope_series_private_t *priv = SLOPE_ALLOC(slope_series_private_t);
-    
+
     SLOPE_ITEM(self)->_private = SLOPE_ITEM_PRIVATE(priv);
     SLOPE_ITEM(self)->_class = _slope_series_get_class();
     SLOPE_ITEM_GET_CLASS(self)->init(SLOPE_ITEM(self));
-    
+
     slope_item_set_name(SLOPE_ITEM(self), name);
-    
+
     return SLOPE_ITEM(self);
 }
 
@@ -100,8 +101,8 @@ slope_item_t* slope_series_new_for_data (const double *vx, const double *vy,
 void slope_series_init (slope_item_t *self)
 {
     slope_series_private_t *priv = SLOPE_SERIES_GET_PRIVATE(self);
-    slope_item_init(self); 
-    
+    slope_item_init(self);
+
     priv->style = SLOPE_SERIES_LINE;
     priv->xmin = 0.0;
     priv->xmax = 1.0;
@@ -124,7 +125,7 @@ void slope_series_set_data (slope_item_t *self,
                             slope_color_t stroke_color, slope_color_t fill_color)
 {
     slope_series_private_t *priv = SLOPE_SERIES_GET_PRIVATE(self);
-    
+
     priv->vx = vx;
     priv->vy = vy;
     priv->size = size;
@@ -204,24 +205,24 @@ static void _slope_series_draw_line (slope_item_t *self, cairo_t *cr)
     double rad = priv->symbol_radius;
     double rad_sqr = rad*rad;
     int k;
-    
+
     data_point.x = priv->vx[0];
     data_point.y = priv->vy[0];
     slope_scale_map (item_priv->scale, &figure_point, &data_point);
-    
+
     x1 = figure_point.x;
     y1 = figure_point.y;
     cairo_move_to(cr, x1, y1);
-    
+
     for (k=1; k<priv->size; ++k) {
         double dx, dy;
         data_point.x = priv->vx[k];
         data_point.y = priv->vy[k];
         slope_scale_map (item_priv->scale, &figure_point, &data_point);
-        
+
         x2 = figure_point.x;
         y2 = figure_point.y;
-        
+
         dx = x2 - x1;
         dy = y2 - y1;
         if ((dx*dx + dy*dy) >= rad_sqr) {
@@ -247,12 +248,12 @@ static void _slope_series_draw_circles (slope_item_t *self, cairo_t *cr)
     double two_rad = 2.0*rad;
     double two_rad_sqr = two_rad*two_rad;
     int k;
-    
+
     data_point.x = priv->vx[0];
     data_point.y = priv->vy[0];
     slope_scale_map (item_priv->scale, &figure_point, &data_point);
     cairo_set_line_width(cr, priv->line_width);
-    
+
     x1 = figure_point.x;
     y1 = figure_point.y;
     slope_cairo_circle(cr, &figure_point, rad);
@@ -260,16 +261,16 @@ static void _slope_series_draw_circles (slope_item_t *self, cairo_t *cr)
     cairo_fill_preserve(cr);
     slope_cairo_set_color(cr, priv->stroke_color);
     cairo_stroke(cr);
-    
+
     for (k=1; k<priv->size; ++k) {
         double dx, dy;
         data_point.x = priv->vx[k];
         data_point.y = priv->vy[k];
         slope_scale_map (item_priv->scale, &figure_point, &data_point);
-        
+
         x2 = figure_point.x;
         y2 = figure_point.y;
-        
+
         dx = x2 - x1;
         dy = y2 - y1;
         if ((dx*dx + dy*dy) >= two_rad_sqr) {
@@ -297,22 +298,22 @@ static void _slope_series_draw_area_under (slope_item_t *self, cairo_t *cr)
     double rad = priv->symbol_radius;
     double rad_sqr = rad*rad;
     int k;
-    
+
     data_point.x = priv->vx[0];
     data_point.y = priv->vy[0];
     slope_scale_map (item_priv->scale, &figure_point, &data_point);
-    
+
     x1 = figure_point.x;
     y1 = figure_point.y;
     x0 = figure_point.x;
     cairo_move_to(cr, x1, y1);
-    
+
     for (k=1; k<priv->size; ++k) {
         double dx, dy;
         data_point.x = priv->vx[k];
         data_point.y = priv->vy[k];
         slope_scale_map (item_priv->scale, &figure_point, &data_point);
-        
+
         x2 = figure_point.x;
         y2 = figure_point.y;
 
@@ -370,7 +371,7 @@ static void _slope_series_check_ranges (slope_series_t *self)
     const double *vx = priv->vx;
     const double *vy = priv->vy;
     int k;
-    
+
     if (priv->size == 0) {
         priv->xmin = priv->xmax = 0.0;
         priv->ymin = priv->ymax = 0.0;
@@ -379,7 +380,7 @@ static void _slope_series_check_ranges (slope_series_t *self)
 
     priv->xmin = priv->xmax = vx[0];
     priv->ymin = priv->ymax = vy[0];
-    
+
     for (k=1; k<priv->size; ++k) {
         if (vx[k] < priv->xmin) priv->xmin = vx[k];
         if (vx[k] > priv->xmax) priv->xmax = vx[k];

@@ -19,6 +19,7 @@
  */
 
 #include <slope/axis_p.h>
+#include <slope/scale.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -39,7 +40,7 @@ static slope_item_class_t* _slope_axis_get_class()
 {
     static slope_item_class_t item_class;
     static slope_bool_t first_call = SLOPE_TRUE;
-    
+
     if (first_call) {
         item_class.init = slope_axis_init;
         item_class.finalize = slope_axis_finalize;
@@ -58,11 +59,11 @@ slope_item_t* slope_axis_new (slope_scale_t *linear_scale, const char *name, slo
     slope_axis_t *self = SLOPE_ALLOC(slope_axis_t);
     slope_axis_private_t *priv = SLOPE_ALLOC(slope_axis_private_t);
     slope_item_private_t *item_priv = SLOPE_ITEM_PRIVATE(priv);
-    
+
     SLOPE_ITEM(self)->_private = SLOPE_ITEM_PRIVATE(priv);
     SLOPE_ITEM(self)->_class = _slope_axis_get_class();
     SLOPE_ITEM_GET_CLASS(self)->init(SLOPE_ITEM(self));
-    
+
     priv->pos = pos;
     priv->color = SLOPE_BLACK;
     priv->grid_color = SLOPE_LIGHTGRAY;
@@ -123,7 +124,7 @@ static void _slope_axis_get_data_rect (const slope_item_t *self, slope_rect_t *r
     slope_axis_private_t *priv = SLOPE_AXIS_GET_PRIVATE(self);
     slope_item_private_t *item_priv = SLOPE_ITEM_PRIVATE(priv);
     slope_scale_get_data_rect(item_priv->scale, rect);
-    
+
     switch (priv->pos) {
         case SLOPE_AXIS_TOP:
             rect->height = 0.0;
@@ -187,7 +188,7 @@ static void _slope_axis_draw_bottom (slope_item_t *self, cairo_t *cr)
     slope_scale_get_data_rect(item_priv->scale, &dat_rect);
     x = fig_rect.x;
     y = fig_rect.y + fig_rect.height;
-    
+
     if (priv->elements & SLOPE_AXIS_LINE) {
         cairo_move_to(cr, x, y);
         cairo_line_to(cr, x+fig_rect.width, y);
@@ -272,7 +273,7 @@ static void _slope_axis_draw_top (slope_item_t *self, cairo_t *cr)
     fig_rect.width += 1.0;
     x = fig_rect.x;
     y = fig_rect.y;
-    
+
     if (priv->elements & SLOPE_AXIS_LINE) {
         cairo_move_to(cr, x, y);
         cairo_line_to(cr, x+fig_rect.width, y);
@@ -299,7 +300,7 @@ static void _slope_axis_draw_top (slope_item_t *self, cairo_t *cr)
             dat_pt.y = 42.0;
             slope_scale_map(item_priv->scale, &fig_pt, &dat_pt);
             x = fig_pt.x;
-            
+
             if (sample->is_major) {
                 cairo_move_to(cr, x, y);
                 cairo_line_to(cr, x, y+6.0);
@@ -437,13 +438,13 @@ static void _slope_axis_draw_right (slope_item_t *self, cairo_t *cr)
     slope_scale_get_data_rect(item_priv->scale, &dat_rect);
     x = fig_rect.x + fig_rect.width;
     y = fig_rect.y + fig_rect.height;
-    
+
     if (priv->elements & SLOPE_AXIS_LINE) {
         cairo_move_to(cr, x, y);
         cairo_line_to(cr, x, y-fig_rect.height);
         cairo_stroke(cr);
     }
-    
+
     if ((priv->elements & SLOPE_AXIS_TICKS) && dat_rect.height > 0.0) {
         if (slope_sampler_get_mode(priv->sampler) == SLOPE_SAMPLER_AUTO_DECIMAL)
             slope_sampler_auto_sample_decimal(priv->sampler, dat_rect.y, dat_rect.y+dat_rect.height,

@@ -51,9 +51,6 @@ G_DEFINE_TYPE(SlopeWidget, slope_widget, GTK_TYPE_DRAWING_AREA);
 static void
 slope_widget_class_init (SlopeWidgetClass *klass)
 {
-    GtkWidgetClass *widget_klass = GTK_WIDGET_CLASS (klass);
-    GObjectClass *object_klass = G_OBJECT_CLASS(klass);
-    
     g_type_class_add_private(klass, sizeof(SlopeWidgetPrivate));
 }
 
@@ -61,15 +58,14 @@ slope_widget_class_init (SlopeWidgetClass *klass)
 static void
 slope_widget_init (SlopeWidget *widget)
 {
-    SlopeWidgetPrivate *priv = SLOPE_WIDGET_GET_PRIVATE (widget);
     GtkWidget *gtk_widget = GTK_WIDGET (widget);
-    
+
     gtk_widget_add_events(gtk_widget,
                           GDK_EXPOSURE_MASK
                           |GDK_BUTTON_MOTION_MASK
                           |GDK_BUTTON_PRESS_MASK
                           |GDK_BUTTON_RELEASE_MASK);
-    
+
     g_signal_connect(G_OBJECT(gtk_widget), "draw",
                      G_CALLBACK(_slope_widget_draw_callback), NULL);
 }
@@ -101,7 +97,7 @@ slope_figure_t*
 slope_widget_get_figure (GtkWidget *widget)
 {
     SlopeWidgetPrivate *priv = SLOPE_WIDGET_GET_PRIVATE (widget);
-    
+
     if (priv != NULL) {
         return priv->figure;
     }
@@ -115,7 +111,7 @@ _slope_widget_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer *data)
     SlopeWidgetPrivate *priv = SLOPE_WIDGET_GET_PRIVATE (widget);
     GtkAllocation allocation;
     slope_rect_t rect;
-    
+
     gtk_widget_get_allocation(widget, &allocation);
     slope_rect_set(&rect, 0.0, 0.0, allocation.width, allocation.height);
 
