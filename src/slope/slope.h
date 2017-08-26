@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,11 +18,22 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_H__
-#define __SLOPE_H__
+#ifndef SLOPE_SLOPE_H
+#define SLOPE_SLOPE_H
+
+/* this header is a shortcut to include the
+ * basic and most often used slope headers
+ * all at once */
 
 #include <slope/figure.h>
-#include <slope/linear.h>
-#include <slope/series.h>
+#include <slope/item.h>
+#include <slope/scale.h>
+#include <slope/view.h>
 
-#endif /*__SLOPE_H__*/
+#include <slope/xyaxis.h>
+#include <slope/xyscale.h>
+#include <slope/xyseries.h>
+
+#include <slope/chart.h>
+
+#endif /* SLOPE_SLOPE_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,29 +18,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_SCALE_P__
-#define __SLOPE_SCALE_P__
+#ifndef SLOPE_SCALE_P_H
+#define SLOPE_SCALE_P_H
 
 #include <slope/scale.h>
 
-#define SLOPE_SCALE_PRIVATE(instance) ((slope_scale_private_t*) (instance))
-#define SLOPE_SCALE_GET_PRIVATE(instance) SLOPE_SCALE_PRIVATE(SLOPE_SCALE(instance)->_private)
+void _scale_set_figure(SlopeScale *self, SlopeFigure *figure);
 
-SLOPE_BEGIN_DECLS
+void _scale_draw(SlopeScale *self, const SlopeRect *rect, cairo_t *cr);
 
-typedef struct _slope_scale_private slope_scale_private_t;
+void _scale_handle_mouse_event(SlopeScale *self, SlopeMouseEvent *event);
 
-struct _slope_scale_private {
-    slope_figure_t *figure;
-   slope_list_t *item_list;
-   slope_bool_t visible;
-   char *name;
-};
+void _scale_mouse_event_impl(SlopeScale *self, SlopeMouseEvent *event);
 
-
-void _slope_scale_draw (slope_scale_t *self, const slope_rect_t *rect, cairo_t *cr);
-void _slope_scale_set_figure (slope_scale_t *self, slope_figure_t *figure);
-
-SLOPE_END_DECLS
-
-#endif /*__SLOPE_SCALE_P__*/
+#endif /* SLOPE_SCALE_P_H */

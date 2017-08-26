@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -10,16 +10,25 @@
  * This source code is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE.  See the GNU General Public License for more details.
+ * PURPOSE.  See the GNU Lesser General Public License for
+ * more details.
  *
  * You should have received a copy of the GNU Lesser General
  * Public License along with this program.
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_CONFIG__
-#define __SLOPE_CONFIG__
+#ifndef SLOPE_CONFIG_H
+#define SLOPE_CONFIG_H
 
-#define SLOPE_HAVE_GTK @SLOPE_HAVE_GTK@
+#define SLOPE_MAJOR_VERSION  @SLOPE_MAJOR_VERSION@
 
-#endif /*__SLOPE_CONFIG__*/
+#define SLOPE_MINOR_VERSION  @SLOPE_MINOR_VERSION@
+
+#define SLOPE_PATCH_VERSION  @SLOPE_PATCH_VERSION@
+
+#define SLOPE_HAVE_GTK  @SLOPE_HAVE_GTK@
+
+#define SLOPE_BUILD_DEBUG  @SLOPE_BUILD_DEBUG@
+
+#endif /* SLOPE_CONFIG_H */

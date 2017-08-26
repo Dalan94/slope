@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,50 +18,89 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_LEGEND__
-#define __SLOPE_LEGEND__
+#ifndef SLOPE_LEGEND_H
+#define SLOPE_LEGEND_H
 
 #include <slope/item.h>
 
-#define SLOPE_LEGEND(instance) ((slope_legend_t*) (instance))
-#define SLOPE_LEGEND_CLASS(instance) ((slope_legend_class_t*) (instance))
-#define SLOPE_LEGEND_GET_CLASS(instance) SLOPE_LEGEND_CLASS(SLOPE_ITEM_GET_CLASS(instance))
+#define SLOPE_LEGEND_TYPE (slope_legend_get_type())
+#define SLOPE_LEGEND(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), SLOPE_LEGEND_TYPE, SlopeLegend))
+#define SLOPE_LEGEND_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass), SLOPE_LEGEND_TYPE, SlopeLegendClass))
+#define SLOPE_IS_LEGEND(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), SLOPE_LEGEND_TYPE))
+#define SLOPE_IS_LEGEND_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), SLOPE_LEGEND_TYPE))
+#define SLOPE_LEGEND_GET_CLASS(obj) \
+  (SLOPE_LEGEND_CLASS(G_OBJECT_GET_CLASS(obj)))
 
 SLOPE_BEGIN_DECLS
 
-typedef struct _slope_legend slope_legend_t;
-typedef struct _slope_legend_class slope_legend_class_t;
+typedef enum _SlopeLegendPosition {
+  SLOPE_LEGEND_CUSTOM,
+  SLOPE_LEGEND_TOP,
+  SLOPE_LEGEND_BOTTOM,
+  SLOPE_LEGEND_LEFT,
+  SLOPE_LEGEND_RIGHT,
+  SLOPE_LEGEND_TOPLEFT,
+  SLOPE_LEGEND_TOPRIGHT,
+  SLOPE_LEGEND_BOTTOMLEFT,
+  SLOPE_LEGEND_BOTTOMRIGHT
+} SlopeLegendPosition;
 
-struct _slope_legend_class {
-   slope_item_class_t parent;
-};
+typedef struct _SlopeLegend {
+  SlopeItem parent;
 
+  /* Padding to allow adding up to 4 members
+     without breaking ABI. */
+  gpointer padding[4];
+} SlopeLegend;
 
-struct _slope_legend {
-   slope_item_t parent;
-};
+typedef struct _SlopeLegendClass {
+  SlopeItemClass parent_class;
 
+  /* Padding to allow adding up to 4 members
+     without breaking ABI. */
+  gpointer padding[4];
+} SlopeLegendClass;
 
-typedef enum _slope_legend_position_policy
-{
-    SLOPE_LEGEND_TOPLEFT,
-    SLOPE_LEGEND_TOPRIGHT,
-    SLOPE_LEGEND_BOTTOMLEFT,
-    SLOPE_LEGEND_BOTTOMRIGHT,
-    SLOPE_LEGEND_CUSTOMPOS
-}
-slope_legend_position_policy_t;
+GType slope_legend_get_type(void) G_GNUC_CONST;
 
+SlopeItem *slope_legend_new(SlopeOrientation orientation);
 
-slope_item_t* slope_legend_new(slope_figure_t *figure);
+SlopeColor slope_legend_get_fill_color(SlopeLegend *self);
 
-void slope_legend_init (slope_item_t *self);
-void slope_legend_finalize (slope_item_t *self);
+void slope_legend_set_fill_color(SlopeLegend *self, SlopeColor color);
 
-void slope_legend_set_position_policy (slope_item_t *self, slope_legend_position_policy_t policy);
-void slope_legend_set_position (slope_item_t *self, double x, double y);
-void slope_legend_set_colors (slope_item_t *self, slope_color_t stroke_color, slope_color_t fill_color);
+SlopeColor slope_legend_get_stroke_color(SlopeLegend *self);
+
+void slope_legend_set_stroke_color(SlopeLegend *self, SlopeColor color);
+
+void slope_legend_set_stroke_width(SlopeLegend *self, double width);
+
+double slope_legend_get_stroke_width(SlopeLegend *self);
+
+void slope_legend_set_orientation(
+    SlopeLegend *self, SlopeOrientation orientation);
+
+SlopeOrientation slope_legend_get_orientation(SlopeLegend *self);
+
+void slope_legend_set_anchor(SlopeLegend *self, SlopeCorner anchor);
+
+SlopeCorner slope_legend_get_anchor(SlopeLegend *self);
+
+void slope_legend_set_position(SlopeLegend *self, double x, double y);
+
+void slope_legend_get_position(SlopeLegend *self, double *x, double *y);
+
+void slope_legend_set_default_position(
+    SlopeLegend *self, SlopeLegendPosition position);
+
+void slope_legend_add_item(SlopeLegend *self, SlopeItem *item);
+
+void slope_legend_clear_items(SlopeLegend *self);
 
 SLOPE_END_DECLS
 
-#endif /*__SLOPE_LEGEND__*/
+#endif /* SLOPE_LEGEND_H */

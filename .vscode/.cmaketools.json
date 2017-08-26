@@ -1,0 +1,457 @@
+{
+  "variant": {
+    "label": "Release",
+    "keywordSettings": {
+      "buildType": "release"
+    },
+    "description": "Enable optimizations, omit debug info"
+  },
+  "activeEnvironments": [],
+  "codeModel": {
+    "configurations": [
+      {
+        "name": "Release",
+        "projects": [
+          {
+            "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build",
+            "name": "slope",
+            "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan",
+            "targets": [
+              {
+                "artifacts": [
+                  "/media/Data/Programmes/Slope/slope_dalan/build/demos/plot_stack"
+                ],
+                "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build/demos",
+                "fileGroups": [
+                  {
+                    "compileFlags": "-O3 -DNDEBUG  ",
+                    "includePath": [
+                      {
+                        "path": "/usr/include/gtk-3.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi2-atk/2.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi-2.0"
+                      },
+                      {
+                        "path": "/usr/include/dbus-1.0"
+                      },
+                      {
+                        "path": "/usr/lib/dbus-1.0/include"
+                      },
+                      {
+                        "path": "/usr/include/gio-unix-2.0"
+                      },
+                      {
+                        "path": "/usr/include/cairo"
+                      },
+                      {
+                        "path": "/usr/include/pango-1.0"
+                      },
+                      {
+                        "path": "/usr/include/atk-1.0"
+                      },
+                      {
+                        "path": "/usr/include/pixman-1"
+                      },
+                      {
+                        "path": "/usr/include/freetype2"
+                      },
+                      {
+                        "path": "/usr/include/libpng16"
+                      },
+                      {
+                        "path": "/usr/include/harfbuzz"
+                      },
+                      {
+                        "path": "/usr/include/glib-2.0"
+                      },
+                      {
+                        "path": "/usr/lib/glib-2.0/include"
+                      },
+                      {
+                        "path": "/usr/include/libdrm"
+                      },
+                      {
+                        "path": "/usr/include/gdk-pixbuf-2.0"
+                      },
+                      {
+                        "path": "/media/Data/Programmes/Slope/slope_dalan/src"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "C",
+                    "sources": [
+                      "plot_stack.c"
+                    ]
+                  }
+                ],
+                "fullName": "plot_stack",
+                "linkFlags": "-rdynamic",
+                "linkLanguageFlags": "-O3 -DNDEBUG",
+                "linkLibraries": "-Wl,-rpath,/media/Data/Programmes/Slope/slope_dalan/build/src ../src/libslope.so -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lm",
+                "linkerLanguage": "C",
+                "name": "plot_stack",
+                "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan/demos",
+                "type": "EXECUTABLE"
+              },
+              {
+                "artifacts": [
+                  "/media/Data/Programmes/Slope/slope_dalan/build/src/libslope.so"
+                ],
+                "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build/src",
+                "fileGroups": [
+                  {
+                    "isGenerated": false,
+                    "sources": [
+                      "slope/drawing.h",
+                      "slope/figure.h",
+                      "slope/global.h",
+                      "slope/item.h",
+                      "slope/scale.h",
+                      "slope/slope.h",
+                      "slope/view.h",
+                      "slope/xyscale.h",
+                      "slope/xyseries.h",
+                      "slope/xyaxis.h",
+                      "slope/legend.h",
+                      "slope/sampler.h",
+                      "slope/chart.h"
+                    ]
+                  },
+                  {
+                    "compileFlags": "-O3 -DNDEBUG -fPIC  ",
+                    "defines": [
+                      "slope_EXPORTS"
+                    ],
+                    "includePath": [
+                      {
+                        "path": "/usr/include/gtk-3.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi2-atk/2.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi-2.0"
+                      },
+                      {
+                        "path": "/usr/include/dbus-1.0"
+                      },
+                      {
+                        "path": "/usr/lib/dbus-1.0/include"
+                      },
+                      {
+                        "path": "/usr/include/gio-unix-2.0"
+                      },
+                      {
+                        "path": "/usr/include/cairo"
+                      },
+                      {
+                        "path": "/usr/include/pango-1.0"
+                      },
+                      {
+                        "path": "/usr/include/atk-1.0"
+                      },
+                      {
+                        "path": "/usr/include/pixman-1"
+                      },
+                      {
+                        "path": "/usr/include/freetype2"
+                      },
+                      {
+                        "path": "/usr/include/libpng16"
+                      },
+                      {
+                        "path": "/usr/include/harfbuzz"
+                      },
+                      {
+                        "path": "/usr/include/glib-2.0"
+                      },
+                      {
+                        "path": "/usr/lib/glib-2.0/include"
+                      },
+                      {
+                        "path": "/usr/include/libdrm"
+                      },
+                      {
+                        "path": "/usr/include/gdk-pixbuf-2.0"
+                      },
+                      {
+                        "path": "/media/Data/Programmes/Slope/slope_dalan/src"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "C",
+                    "sources": [
+                      "slope/drawing.c",
+                      "slope/figure.c",
+                      "slope/item.c",
+                      "slope/scale.c",
+                      "slope/xyscale.c",
+                      "slope/xyseries.c",
+                      "slope/xyaxis.c",
+                      "slope/legend.c",
+                      "slope/sampler.c",
+                      "slope/view.c",
+                      "slope/chart.c"
+                    ]
+                  }
+                ],
+                "fullName": "libslope.so",
+                "linkerLanguage": "C",
+                "name": "slope",
+                "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan/src",
+                "type": "SHARED_LIBRARY"
+              },
+              {
+                "artifacts": [
+                  "/media/Data/Programmes/Slope/slope_dalan/build/demos/simple"
+                ],
+                "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build/demos",
+                "fileGroups": [
+                  {
+                    "compileFlags": "-O3 -DNDEBUG  ",
+                    "includePath": [
+                      {
+                        "path": "/usr/include/gtk-3.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi2-atk/2.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi-2.0"
+                      },
+                      {
+                        "path": "/usr/include/dbus-1.0"
+                      },
+                      {
+                        "path": "/usr/lib/dbus-1.0/include"
+                      },
+                      {
+                        "path": "/usr/include/gio-unix-2.0"
+                      },
+                      {
+                        "path": "/usr/include/cairo"
+                      },
+                      {
+                        "path": "/usr/include/pango-1.0"
+                      },
+                      {
+                        "path": "/usr/include/atk-1.0"
+                      },
+                      {
+                        "path": "/usr/include/pixman-1"
+                      },
+                      {
+                        "path": "/usr/include/freetype2"
+                      },
+                      {
+                        "path": "/usr/include/libpng16"
+                      },
+                      {
+                        "path": "/usr/include/harfbuzz"
+                      },
+                      {
+                        "path": "/usr/include/glib-2.0"
+                      },
+                      {
+                        "path": "/usr/lib/glib-2.0/include"
+                      },
+                      {
+                        "path": "/usr/include/libdrm"
+                      },
+                      {
+                        "path": "/usr/include/gdk-pixbuf-2.0"
+                      },
+                      {
+                        "path": "/media/Data/Programmes/Slope/slope_dalan/src"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "C",
+                    "sources": [
+                      "simple.c"
+                    ]
+                  }
+                ],
+                "fullName": "simple",
+                "linkFlags": "-rdynamic",
+                "linkLanguageFlags": "-O3 -DNDEBUG",
+                "linkLibraries": "-Wl,-rpath,/media/Data/Programmes/Slope/slope_dalan/build/src ../src/libslope.so -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lm",
+                "linkerLanguage": "C",
+                "name": "simple",
+                "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan/demos",
+                "type": "EXECUTABLE"
+              },
+              {
+                "artifacts": [
+                  "/media/Data/Programmes/Slope/slope_dalan/build/demos/animation"
+                ],
+                "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build/demos",
+                "fileGroups": [
+                  {
+                    "compileFlags": "-O3 -DNDEBUG  ",
+                    "includePath": [
+                      {
+                        "path": "/usr/include/gtk-3.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi2-atk/2.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi-2.0"
+                      },
+                      {
+                        "path": "/usr/include/dbus-1.0"
+                      },
+                      {
+                        "path": "/usr/lib/dbus-1.0/include"
+                      },
+                      {
+                        "path": "/usr/include/gio-unix-2.0"
+                      },
+                      {
+                        "path": "/usr/include/cairo"
+                      },
+                      {
+                        "path": "/usr/include/pango-1.0"
+                      },
+                      {
+                        "path": "/usr/include/atk-1.0"
+                      },
+                      {
+                        "path": "/usr/include/pixman-1"
+                      },
+                      {
+                        "path": "/usr/include/freetype2"
+                      },
+                      {
+                        "path": "/usr/include/libpng16"
+                      },
+                      {
+                        "path": "/usr/include/harfbuzz"
+                      },
+                      {
+                        "path": "/usr/include/glib-2.0"
+                      },
+                      {
+                        "path": "/usr/lib/glib-2.0/include"
+                      },
+                      {
+                        "path": "/usr/include/libdrm"
+                      },
+                      {
+                        "path": "/usr/include/gdk-pixbuf-2.0"
+                      },
+                      {
+                        "path": "/media/Data/Programmes/Slope/slope_dalan/src"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "C",
+                    "sources": [
+                      "animation.c"
+                    ]
+                  }
+                ],
+                "fullName": "animation",
+                "linkFlags": "-rdynamic",
+                "linkLanguageFlags": "-O3 -DNDEBUG",
+                "linkLibraries": "-Wl,-rpath,/media/Data/Programmes/Slope/slope_dalan/build/src ../src/libslope.so -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lm",
+                "linkerLanguage": "C",
+                "name": "animation",
+                "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan/demos",
+                "type": "EXECUTABLE"
+              },
+              {
+                "artifacts": [
+                  "/media/Data/Programmes/Slope/slope_dalan/build/demos/widgets"
+                ],
+                "buildDirectory": "/media/Data/Programmes/Slope/slope_dalan/build/demos",
+                "fileGroups": [
+                  {
+                    "compileFlags": "-O3 -DNDEBUG  ",
+                    "includePath": [
+                      {
+                        "path": "/usr/include/gtk-3.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi2-atk/2.0"
+                      },
+                      {
+                        "path": "/usr/include/at-spi-2.0"
+                      },
+                      {
+                        "path": "/usr/include/dbus-1.0"
+                      },
+                      {
+                        "path": "/usr/lib/dbus-1.0/include"
+                      },
+                      {
+                        "path": "/usr/include/gio-unix-2.0"
+                      },
+                      {
+                        "path": "/usr/include/cairo"
+                      },
+                      {
+                        "path": "/usr/include/pango-1.0"
+                      },
+                      {
+                        "path": "/usr/include/atk-1.0"
+                      },
+                      {
+                        "path": "/usr/include/pixman-1"
+                      },
+                      {
+                        "path": "/usr/include/freetype2"
+                      },
+                      {
+                        "path": "/usr/include/libpng16"
+                      },
+                      {
+                        "path": "/usr/include/harfbuzz"
+                      },
+                      {
+                        "path": "/usr/include/glib-2.0"
+                      },
+                      {
+                        "path": "/usr/lib/glib-2.0/include"
+                      },
+                      {
+                        "path": "/usr/include/libdrm"
+                      },
+                      {
+                        "path": "/usr/include/gdk-pixbuf-2.0"
+                      },
+                      {
+                        "path": "/media/Data/Programmes/Slope/slope_dalan/src"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "C",
+                    "sources": [
+                      "widgets.c"
+                    ]
+                  }
+                ],
+                "fullName": "widgets",
+                "linkFlags": "-rdynamic",
+                "linkLanguageFlags": "-O3 -DNDEBUG",
+                "linkLibraries": "-Wl,-rpath,/media/Data/Programmes/Slope/slope_dalan/build/src ../src/libslope.so -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lm",
+                "linkerLanguage": "C",
+                "name": "widgets",
+                "sourceDirectory": "/media/Data/Programmes/Slope/slope_dalan/demos",
+                "type": "EXECUTABLE"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "cookie": "0.784480194223576",
+    "inReplyTo": "codemodel",
+    "type": "reply"
+  }
+}

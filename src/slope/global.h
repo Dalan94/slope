@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,32 +18,43 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_GLOBAL__
-#define __SLOPE_GLOBAL__
+#ifndef SLOPE_GLOBAL_H
+#define SLOPE_GLOBAL_H
 
 #ifdef __cplusplus
-# define SLOPE_BEGIN_DECLS extern "C" {
-# define SLOPE_END_DECLS } /* extern "C" */
+#define SLOPE_BEGIN_DECLS extern "C" {
+#define SLOPE_END_DECLS } /* extern "C" */
 #else
-# define SLOPE_BEGIN_DECLS /* nothing */
-# define SLOPE_END_DECLS /* nothing */
+#define SLOPE_BEGIN_DECLS /* nothing */
+#define SLOPE_END_DECLS   /* nothing */
 #endif
 
-typedef struct _slope_figure slope_figure_t;
-typedef struct _slope_figure_class slope_figure_class_t;
+typedef struct _SlopeFigure SlopeFigure;
+typedef struct _SlopeScale SlopeScale;
+typedef struct _SlopeItem SlopeItem;
+typedef struct _SlopeView SlopeView;
 
-typedef struct _slope_scale slope_scale_t;
-typedef struct _slope_scale_class slope_scale_class_t;
+typedef enum _SlopeMouseButton {
+  SLOPE_MOUSE_BUTTON_LEFT,
+  SLOPE_MOUSE_BUTTON_RIGHT,
+  SLOPE_MOUSE_BUTTON_NONE
+} SlopeMouseButton;
 
-typedef struct _slope_item  slope_item_t;
-typedef struct _slope_item_class  slope_item_class_t;
+typedef enum _SlopeMouseEventType {
+  SLOPE_MOUSE_PRESS,
+  SLOPE_MOUSE_DOUBLE_PRESS,
+  SLOPE_MOUSE_MOVE,
+  SLOPE_MOUSE_MOVE_PRESSED,
+  SLOPE_MOUSE_RELEASE
+} SlopeMouseEventType;
 
-#define SLOPE_ALLOC_BYTES(amount) (malloc ((size_t) amount))
-#define SLOPE_ALLOC(type) ((type*) SLOPE_ALLOC_BYTES(sizeof(type)))
-#define SLOPE_FREE(ptr) (free(ptr))
+typedef struct _SlopeMouseEvent {
+  double x;
+  double y;
+  SlopeMouseButton button;
+  SlopeMouseEventType type;
+} SlopeMouseEvent;
 
-typedef int slope_bool_t;
-#define SLOPE_FALSE 0
-#define SLOPE_TRUE  1
+#define SLOPE_UNUSED(var) (void) var
 
-#endif /*__SLOPE_GLOBAL__*/
+#endif /* SLOPE_GLOBAL_H */

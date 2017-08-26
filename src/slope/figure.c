@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,317 +18,360 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/figure_p.h>
-#include <slope/scale_p.h>
-#include <slope/item_p.h>
-#include <slope/scale.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <cairo-svg.h>
 #include <cairo-pdf.h>
+#include <cairo-svg.h>
 
+#include <slope/figure_p.h>
+#include <slope/item_p.h>
+#include <slope/scale_p.h>
+#include <slope/view.h>
 
-static void _slope_figure_draw (slope_figure_t*, const slope_rect_t*, cairo_t*);
-static void _slope_figure_set_color_scheme (slope_figure_t*, slope_color_t, slope_color_t, slope_color_t);
+typedef struct _SlopeFigurePrivate {
+  SlopeView *view;
+  GList *scale_list;
+  SlopeColor background_color;
+  gboolean managed;
+  gboolean redraw_requested;
+  double layout_rows;
+  double layout_cols;
+  int frame_mode;
+  SlopeItem *legend;
+} SlopeFigurePrivate;
 
+#define SLOPE_FIGURE_GET_PRIVATE(obj) \
+  (G_TYPE_INSTANCE_GET_PRIVATE((obj), SLOPE_FIGURE_TYPE, SlopeFigurePrivate))
 
-static slope_figure_class_t* _slope_figure_get_class ()
-{
-    static slope_figure_class_t figure_class;
-    static slope_bool_t first_call = SLOPE_TRUE;
+G_DEFINE_TYPE_WITH_PRIVATE(SlopeFigure, slope_figure, G_TYPE_OBJECT)
 
-    if (first_call) {
-        figure_class.init = slope_figure_init;
-        figure_class.finalize = slope_figure_finalize;
-        figure_class.draw = _slope_figure_draw;
-        figure_class.set_color_scheme = _slope_figure_set_color_scheme;
-        first_call = SLOPE_FALSE;
-    }
-    return &figure_class;
+static void _figure_update_layout(SlopeFigure *self);
+static void _figure_add_scale(SlopeFigure *self, SlopeScale *scale);
+static void _figure_add_rect_path(
+    SlopeFigure *self, SlopeRect *rect, const SlopeRect *in_rect, cairo_t *cr);
+static void _figure_draw(SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+static void _figure_clear_scale_list(gpointer data);
+static void _figure_finalize(GObject *self);
+static void _figure_draw_background(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+static void _figure_draw_scales(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+static void _figure_draw_legend(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+
+static void slope_figure_class_init(SlopeFigureClass *klass) {
+  GObjectClass *object_klass = G_OBJECT_CLASS(klass);
+  object_klass->finalize = _figure_finalize;
+  klass->add_scale = _figure_add_scale;
+  klass->draw = _figure_draw;
 }
 
-
-slope_figure_t* slope_figure_new (const char *name)
-{
-    slope_figure_t *self = SLOPE_ALLOC(slope_figure_t);
-
-    self->_class = _slope_figure_get_class();
-    SLOPE_FIGURE_GET_CLASS(self)->init(self);
-
-    slope_figure_set_name(self, name);
-    return self;
+static void slope_figure_init(SlopeFigure *self) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  priv->view = NULL;
+  priv->scale_list = NULL;
+  priv->background_color = SLOPE_WHITE;
+  priv->managed = TRUE;
+  priv->redraw_requested = FALSE;
+  priv->frame_mode = SLOPE_FIGURE_ROUNDRECTANGLE;
+  priv->legend = slope_legend_new(SLOPE_HORIZONTAL);
+  slope_item_set_is_visible(SLOPE_ITEM(priv->legend), FALSE);
 }
 
-
-void slope_figure_init (slope_figure_t *self)
-{
-    slope_figure_private_t *priv = SLOPE_ALLOC(slope_figure_private_t);
-
-    self->_private = priv;
-    priv->scale_list = slope_list_new();
-    priv->legend = slope_legend_new(self);
-    priv->show_title = SLOPE_TRUE;
-    priv->back_color = SLOPE_WHITE;
-    priv->name_color = SLOPE_BLACK;
-    priv->name = NULL;
+static void _figure_finalize(GObject *self) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  if (priv->scale_list != NULL) {
+    g_list_free_full(priv->scale_list, _figure_clear_scale_list);
+    priv->scale_list = NULL;
+  }
+  g_object_unref(G_OBJECT(priv->legend));
+  G_OBJECT_CLASS(slope_figure_parent_class)->finalize(self);
 }
 
-
-void slope_figure_destroy (slope_figure_t *self)
-{
-    if (self == NULL)
-        return;
-    SLOPE_FIGURE_GET_CLASS(self)->finalize(self);
-    SLOPE_FREE(self);
+SlopeFigure *slope_figure_new() {
+  SlopeFigure *self = SLOPE_FIGURE(g_object_new(SLOPE_FIGURE_TYPE, NULL));
+  return self;
 }
 
-
-void slope_figure_finalize (slope_figure_t *self)
-{
-    slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
-    if (priv == NULL)
-        return;
-    slope_list_destroy(priv->scale_list);
-    slope_item_destroy(priv->legend);
-    if (priv->name)
-        SLOPE_FREE(priv->name);
-    SLOPE_FREE(priv);
+static void _figure_add_scale(SlopeFigure *self, SlopeScale *scale) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  if (scale == NULL) {
+    return;
+  }
+  priv->scale_list = g_list_append(priv->scale_list, scale);
+  _scale_set_figure(scale, self);
+  slope_scale_rescale(scale);
+  _figure_update_layout(self);
 }
 
-
-void slope_figure_add_scale (slope_figure_t *self, slope_scale_t *scale)
-{
-    slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
-
-    if (scale == NULL)
-        return;
-    if (slope_list_size(priv->scale_list) == 0) {
-        priv->ref_scale = scale;
-        _slope_item_set_scale(priv->legend, scale);
-    }
-
-    slope_list_append(priv->scale_list, scale);
-    _slope_scale_set_figure(scale, self);
+static void _figure_draw(
+    SlopeFigure *self, const SlopeRect *in_rect, cairo_t *cr) {
+  SlopeRect rect;
+  /* save cr's state and clip tho the figure's rectangle,
+     fill the background if required */
+  cairo_save(cr);
+  cairo_new_path(cr);
+  cairo_select_font_face(
+      cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+  cairo_set_font_size(cr, 11);
+  _figure_add_rect_path(self, &rect, in_rect, cr);
+  _figure_draw_background(self, &rect, cr);
+  cairo_clip(cr);
+  _figure_draw_scales(self, &rect, cr);
+  _figure_draw_legend(self, &rect, cr);
+  /* give back cr in the same state as we received it */
+  cairo_restore(cr);
 }
 
-
-void slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, cairo_t *cr)
-{
-    SLOPE_FIGURE_GET_CLASS(self)->draw(self, rect, cr);
-}
-
-
-static void _slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, cairo_t *cr)
-{
-    slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
-    slope_iterator_t *scale_iter;
-    cairo_text_extents_t txt_ext;
-
-    /* clip to avoid drawing outside target rect */
-    slope_rect_copy(&priv->rect, rect);
-    cairo_save(cr);
-    cairo_new_path(cr);
+static void _figure_add_rect_path(
+    SlopeFigure *self, SlopeRect *rect, const SlopeRect *in_rect, cairo_t *cr) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  if (priv->frame_mode == SLOPE_FIGURE_ROUNDRECTANGLE) {
+    rect->x = in_rect->x + 10.0;
+    rect->y = in_rect->y + 10.0;
+    rect->width = in_rect->width - 20.0;
+    rect->height = in_rect->height - 20.0;
+    slope_cairo_round_rect(cr, rect, 10.0);
+  } else {
+    *rect = *in_rect;
     slope_cairo_rect(cr, rect);
-    slope_cairo_set_color(cr, priv->back_color);
-    cairo_fill(cr);
-
-    /* set default font */
-    #if defined(_WIN32) || defined(__MINGW32__)
-    cairo_select_font_face(cr, "Times New Roman",
-                           CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, 14);
-    #else
-    cairo_select_font_face(cr, "sans",
-                           CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, 12);
-    #endif
-
-    /* draw data contents */
-    SLOPE_LIST_FOREACH (scale_iter, priv->scale_list) {
-        slope_scale_t *scale = SLOPE_SCALE(slope_iterator_data(scale_iter));
-        if (slope_scale_get_visible(scale)) {
-            _slope_scale_draw(scale, rect, cr);
-        }
-    }
-    /* draw legend */
-    if (slope_item_get_visible(priv->legend)
-        && priv->ref_scale != NULL)
-    {
-        _slope_item_draw(priv->legend, cr);
-    }
-    /* draw figure title */
-    if (priv->show_title) {
-        cairo_text_extents(cr, priv->name, &txt_ext);
-        cairo_move_to(cr, rect->x + (rect->width-txt_ext.width)/2.0, txt_ext.height+4.0);
-        slope_cairo_set_color(cr, priv->name_color);
-        cairo_show_text(cr, priv->name);
-    }
-    cairo_restore(cr);
+  }
 }
 
-
-int slope_figure_write_to_png (slope_figure_t *self,
-                                const char *filename,
-                                int width, int height)
-{
-    cairo_surface_t *image =
-        cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                width, height);
-    cairo_t *cr = cairo_create(image);
-    slope_rect_t rect;
-    slope_rect_set(&rect, 0.0, 0.0, (double) width, (double) height);
-    slope_figure_draw(self, &rect, cr);
-    if (cairo_surface_write_to_png(image, filename) != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy(image);
-        cairo_destroy(cr);
-        return -1;
-    }
-    cairo_surface_destroy(image);
-    cairo_destroy(cr);
-    return 0;
+static void _figure_draw_background(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr) {
+  SLOPE_UNUSED(rect);
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  if (!SLOPE_COLOR_IS_NULL(priv->background_color)) {
+    slope_cairo_set_color(cr, priv->background_color);
+    cairo_fill_preserve(cr);
+  }
 }
 
-int slope_figure_write_to_svg (slope_figure_t *self,
-                                const char *filename,
-                                int width, int height)
-{
-	cairo_surface_t *surf;
-    cairo_t *cr;
-    slope_rect_t rect;
-
-    surf = cairo_svg_surface_create(
-            filename, width, height);
-    if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
-        return -1;
+static void _figure_draw_scales(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  double layout_cell_width = rect->width / priv->layout_cols;
+  double layout_cell_height = rect->height / priv->layout_rows;
+  GList *scale_iter = priv->scale_list;
+  while (scale_iter != NULL) {
+    SlopeScale *scale = SLOPE_SCALE(scale_iter->data);
+    if (slope_scale_get_is_visible(scale) == TRUE) {
+      SlopeRect scale_rect, layout;
+      slope_scale_get_layout_rect(scale, &scale_rect);
+      layout.x = rect->x + scale_rect.x * layout_cell_width;
+      layout.y = rect->y + scale_rect.y * layout_cell_height;
+      layout.width = scale_rect.width * layout_cell_width;
+      layout.height = scale_rect.height * layout_cell_height;
+      _scale_draw(scale, &layout, cr);
     }
+    scale_iter = scale_iter->next;
+  }
+}
 
-    cr = cairo_create(surf);
-    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy(surf);
-        return -1;
+static void _figure_draw_legend(
+    SlopeFigure *self, const SlopeRect *rect, cairo_t *cr) {
+  SLOPE_UNUSED(rect);
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  if (slope_item_get_is_visible(priv->legend)) {
+    // TODO: better legend position algorithm
+    slope_legend_set_position(SLOPE_LEGEND(priv->legend), 20.0, 20.0);
+    slope_legend_clear_items(SLOPE_LEGEND(priv->legend));
+    /* the figure's legend is a global legend, so let's update it's
+       items in each draw to make sure it always has all items */
+    GList *scale_iter = priv->scale_list;
+    while (scale_iter != NULL) {
+      SlopeScale *scale = SLOPE_SCALE(scale_iter->data);
+      GList *item_iter = slope_scale_get_item_list(scale);
+      while (item_iter != NULL) {
+        SlopeItem *item = SLOPE_ITEM(item_iter->data);
+        slope_legend_add_item(SLOPE_LEGEND(priv->legend), item);
+        item_iter = item_iter->next;
+      }
+      scale_iter = scale_iter->next;
     }
+    _item_draw(priv->legend, cr);
+  }
+}
 
-    slope_rect_set(&rect, 0.0, 0.0, width, height);
-    slope_figure_draw(self, &rect, cr);
+static void _figure_clear_scale_list(gpointer data) {
+  if (slope_scale_get_is_managed(SLOPE_SCALE(data)) == TRUE) {
+    g_object_unref(G_OBJECT(data));
+  }
+}
 
-    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy(surf);
-        cairo_destroy(cr);
-        return -1;
-    }
+void _figure_set_view(SlopeFigure *self, SlopeView *view) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  GList *iter;
+  priv->view = view;
+  iter = priv->scale_list;
+  while (iter != NULL) {
+    SlopeScale *scale = SLOPE_SCALE(iter->data);
+    _scale_set_figure(scale, self);
+    iter = iter->next;
+  }
+}
 
+int slope_figure_write_to_png(
+    SlopeFigure *self, const char *filename, int width, int height) {
+  SlopeFigurePrivate *priv;
+  cairo_surface_t *image;
+  cairo_t *cr;
+  SlopeRect rect;
+  int mode_back;
+  if (filename == NULL || width <= 0 || height <= 0) {
+    return -1;
+  }
+  priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  cr = cairo_create(image);
+  rect.x = 0.0;
+  rect.y = 0.0;
+  rect.width = width;
+  rect.height = height;
+  mode_back = priv->frame_mode;
+  priv->frame_mode = SLOPE_FIGURE_RECTANGLE;
+  slope_figure_draw(self, &rect, cr);
+  cairo_surface_write_to_png(image, filename);
+  priv->frame_mode = mode_back;
+  cairo_surface_destroy(image);
+  cairo_destroy(cr);
+}
+
+int slope_figure_write_to_svg(
+    SlopeFigure *self, const char *filename, int width, int height) {
+  cairo_surface_t *surf;
+  cairo_t *cr;
+  SlopeRect rect;
+  surf = cairo_svg_surface_create(filename, width, height);
+  if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
+    return -1;
+  }
+
+  cr = cairo_create(surf);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surf);
+    return -1;
+  }
+
+  rect.x = 0.0;
+  rect.y = 0.0;
+  rect.width = width;
+  rect.height = height;
+  slope_figure_draw(self, &rect, cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
     cairo_surface_destroy(surf);
     cairo_destroy(cr);
+    return -1;
+  }
 
-	return 0;
+  cairo_surface_destroy(surf);
+  cairo_destroy(cr);
+  return 0;
 }
 
-int slope_figure_write_to_pdf (slope_figure_t *self,
-                                const char *filename,
-                                int width, int height)
-{
-	cairo_surface_t *surf;
-    cairo_t *cr;
-    slope_rect_t rect;
+int slope_figure_write_to_pdf(
+    SlopeFigure *self, const char *filename, int width, int height) {
+  cairo_surface_t *surf;
+  cairo_t *cr;
+  SlopeRect rect;
+  surf = cairo_pdf_surface_create(filename, width, height);
+  if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
+    return -1;
+  }
 
-    surf = cairo_pdf_surface_create(
-            filename, width, height);
-    if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS) {
-        return -1;
-    }
+  cr = cairo_create(surf);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(surf);
+    return -1;
+  }
 
-    cr = cairo_create(surf);
-    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy(surf);
-        return -1;
-    }
-
-    slope_rect_set(&rect, 0.0, 0.0, width, height);
-    slope_figure_draw(self, &rect, cr);
-
-    if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
-        cairo_surface_destroy(surf);
-        cairo_destroy(cr);
-        return -1;
-    }
-
+  rect.x = 0.0;
+  rect.y = 0.0;
+  rect.width = width;
+  rect.height = height;
+  slope_figure_draw(self, &rect, cr);
+  if (cairo_status(cr) != CAIRO_STATUS_SUCCESS) {
     cairo_surface_destroy(surf);
     cairo_destroy(cr);
+    return -1;
+  }
 
-	return 0;
+  cairo_surface_destroy(surf);
+  cairo_destroy(cr);
+  return 0;
 }
 
-void slope_figure_set_name (slope_figure_t *self, const char *name)
-{
-    slope_figure_private_t *priv;
-
-    if (self == NULL)
-        return;
-
-    priv = SLOPE_FIGURE_GET_PRIVATE(self);
-    if (priv->name != NULL)
-        SLOPE_FREE(priv->name);
-    priv->name = strdup(name);
+static void _figure_update_layout(SlopeFigure *self) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  priv->layout_rows = 0.0;
+  priv->layout_cols = 0.0;
+  GList *iter = priv->scale_list;
+  while (iter != NULL) {
+    SlopeRect scale_rect;
+    slope_scale_get_layout_rect(SLOPE_SCALE(iter->data), &scale_rect);
+    if (scale_rect.x + scale_rect.width > priv->layout_cols) {
+      priv->layout_cols = scale_rect.x + scale_rect.width;
+    }
+    if (scale_rect.y + scale_rect.height > priv->layout_rows) {
+      priv->layout_rows = scale_rect.y + scale_rect.height;
+    }
+    iter = iter->next;
+  }
 }
 
-
-slope_list_t* slope_figure_get_scale_list (const slope_figure_t *self)
-{
-    if (self == NULL)
-        return NULL;
-    return SLOPE_FIGURE_GET_PRIVATE(self)->scale_list;
+void _figure_handle_mouse_event(SlopeFigure *self, SlopeMouseEvent *event) {
+  SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+  /* delegate the handling of the event down to the scales and it's
+     items */
+  GList *iter = priv->scale_list;
+  while (iter != NULL) {
+    SlopeScale *scale = SLOPE_SCALE(iter->data);
+    _scale_handle_mouse_event(scale, event);
+    iter = iter->next;
+  }
+  if (priv->redraw_requested == TRUE) {
+    slope_view_redraw(priv->view);
+    priv->redraw_requested = FALSE;
+  }
 }
 
-
-const char* slope_figure_get_name (const slope_figure_t *self)
-{
-    if (self == NULL)
-        return NULL;
-    return SLOPE_FIGURE_GET_PRIVATE(self)->name;
+void _figure_request_redraw(SlopeFigure *self) {
+  SLOPE_FIGURE_GET_PRIVATE(self)->redraw_requested = TRUE;
 }
 
-
-void slope_figure_get_rect (const slope_figure_t *self, slope_rect_t *rect)
-{
-    slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
-    slope_rect_copy(rect, &priv->rect);
+GList *slope_figure_get_scale_list(SlopeFigure *self) {
+  return SLOPE_FIGURE_GET_PRIVATE(self)->scale_list;
 }
 
-
-slope_scale_t* slope_figure_get_reference_scale (const slope_figure_t *self)
-{
-    return SLOPE_FIGURE_GET_PRIVATE(self)->ref_scale;
+SlopeColor slope_figure_get_background_color(SlopeFigure *self) {
+  return SLOPE_FIGURE_GET_PRIVATE(self)->background_color;
 }
 
-
-slope_item_t* slope_figure_get_legend (const slope_figure_t *self)
-{
-    return SLOPE_FIGURE_GET_PRIVATE(self)->legend;
+void slope_figure_set_background_color(SlopeFigure *self, SlopeColor color) {
+  SLOPE_FIGURE_GET_PRIVATE(self)->background_color = color;
 }
 
-
-void slope_figure_set_color_scheme (slope_figure_t *self, slope_color_t background,
-                                    slope_color_t foreground, slope_color_t extra_color)
-{
-    SLOPE_FIGURE_GET_CLASS(self)->set_color_scheme(self, background, foreground, extra_color);
+SlopeView *slope_figure_get_view(SlopeFigure *self) {
+  return SLOPE_FIGURE_GET_PRIVATE(self)->view;
 }
 
+gboolean slope_figure_get_is_managed(SlopeFigure *self) {
+  return SLOPE_FIGURE_GET_PRIVATE(self)->managed;
+}
 
-static void _slope_figure_set_color_scheme (slope_figure_t *self, slope_color_t background,
-                                            slope_color_t foreground, slope_color_t extra_color)
-{
-    slope_figure_private_t *priv = SLOPE_FIGURE_GET_PRIVATE(self);
-    slope_iterator_t *iter;
+SlopeItem *slope_figure_get_legend(SlopeFigure *self) {
+  return SLOPE_FIGURE_GET_PRIVATE(self)->legend;
+}
 
-    priv->back_color = background;
-    priv->name_color = foreground;
-    slope_legend_set_colors(priv->legend, foreground, background);
-    SLOPE_LIST_FOREACH (iter, priv->scale_list)
-        slope_scale_set_color_scheme (SLOPE_SCALE(slope_iterator_data(iter)),
-            background, foreground, extra_color);
+void slope_figure_set_is_managed(SlopeFigure *self, gboolean managed) {
+  SLOPE_FIGURE_GET_PRIVATE(self)->managed = managed;
+}
+
+void slope_figure_draw(SlopeFigure *self, const SlopeRect *rect, cairo_t *cr) {
+  SLOPE_FIGURE_GET_CLASS(self)->draw(self, rect, cr);
+}
+
+void slope_figure_add_scale(SlopeFigure *self, SlopeScale *scale) {
+  SLOPE_FIGURE_GET_CLASS(self)->add_scale(self, scale);
 }
 
 /* slope/figure.c */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,30 +18,20 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_ITEM_P__
-#define __SLOPE_ITEM_P__
+#ifndef SLOPE_ITEM_P_H
+#define SLOPE_ITEM_P_H
 
 #include <slope/item.h>
+#include <slope/view.h>
 
-#define SLOPE_ITEM_PRIVATE(instance) ((slope_item_private_t*) (instance))
-#define SLOPE_ITEM_GET_PRIVATE(instance) SLOPE_ITEM_PRIVATE(SLOPE_ITEM(instance)->_private)
+void _item_draw(SlopeItem *self, cairo_t *cr);
 
-SLOPE_BEGIN_DECLS
+void _item_draw_thumb(SlopeItem *self, cairo_t *cr, const SlopePoint *pos);
 
-typedef struct _slope_item_private slope_item_private_t;
+void _item_set_scale(SlopeItem *self, SlopeScale *scale);
 
-struct _slope_item_private {
-    slope_scale_t *scale;
-    slope_bool_t visible;
-    slope_bool_t has_thumb;
-    char *name;
-};
+void _item_handle_mouse_event(SlopeItem *self, SlopeMouseEvent *event);
 
-void _slope_item_draw (slope_item_t *self, cairo_t *cr);
-void _slope_item_draw_thumb (slope_item_t *self, const slope_point_t *point, cairo_t *cr);
-void _slope_item_draw_thumb_dummy_impl (slope_item_t *self, const slope_point_t *point, cairo_t *cr);
-void _slope_item_set_scale (slope_item_t *self, slope_scale_t *scale);
+void _item_mouse_event_impl(SlopeItem *self, SlopeMouseEvent *event);
 
-SLOPE_END_DECLS
-
-#endif /*__SLOPE_ITEM_P__*/
+#endif /* SLOPE_ITEM_P_H */

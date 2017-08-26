@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,141 +18,145 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/sampler.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <math.h>
+#include <slope/sampler.h>
+#include <stdio.h>
 
+typedef struct _SlopeSampler {
+  GList *sample_list;
+  guint32 mode;
+  double min;
+  double max;
+  double hint;
+} SlopeSampler;
 
-struct _slope_sampler
-{
-   slope_list_t *sample_list;
-   slope_sampler_mode_t mode;
-   double min, max;
-   double hint;
-};
+void _sampler_delete_sample(gpointer data);
 
+SlopeSampler *slope_sampler_new(void) {
+  SlopeSampler *self = g_malloc(sizeof(SlopeSampler));
 
-slope_sampler_t* slope_sampler_new ()
-{
-   slope_sampler_t *self = SLOPE_ALLOC(slope_sampler_t);
-   self->sample_list = slope_list_new();
-   self->min = 0.0;
-   self->max = 0.0;
-   self->hint = 0.0;
-   self->mode = SLOPE_SAMPLER_AUTO_DECIMAL;
-   return self;
+  self->sample_list = NULL;
+  self->min = 0.0;
+  self->max = 0.0;
+  self->mode = SLOPE_SAMPLER_AUTO_DECIMAL;
+
+  return self;
 }
 
-
-void slope_sampler_destroy (slope_sampler_t *self)
-{
-   slope_sampler_clear(self);
-   slope_list_destroy(self->sample_list);
-   SLOPE_FREE(self);
+void slope_sampler_destroy(SlopeSampler *self) {
+  slope_sampler_clear(self);
+  g_free(self);
 }
 
-
-slope_list_t* slope_sampler_get_sample_list (slope_sampler_t *self)
-{
-   return self->sample_list;
+void slope_sampler_clear(SlopeSampler *self) {
+  g_list_free_full(self->sample_list, _sampler_delete_sample);
+  self->sample_list = NULL;
 }
 
+void slope_sampler_add_sample(SlopeSampler *self, double coord, char *label) {
+  SlopeSample *sample = g_malloc(sizeof(SlopeSample));
 
-void slope_sampler_clear (slope_sampler_t *self)
-{
-   slope_iterator_t *iter;
-   SLOPE_LIST_FOREACH (iter, self->sample_list) {
-      slope_sample_t *sample = SLOPE_SAMPLE(slope_iterator_data(iter));
-      SLOPE_FREE(sample->label);
-      SLOPE_FREE(sample);
-   }
-   slope_list_clear(self->sample_list);
+  sample->coord = coord;
+  sample->label = label != NULL ? g_strdup(label) : NULL;
+
+  self->sample_list = g_list_append(self->sample_list, sample);
 }
 
+void slope_sampler_set_samples(
+    SlopeSampler *self, const SlopeSample *sample_array, int n_samples) {
+  int k;
 
-void slope_sampler_add_sample (slope_sampler_t *self, double value, const char *label, slope_bool_t is_major)
-{
-   slope_sample_t *sample = SLOPE_ALLOC(slope_sample_t);
-   sample->value = value;
-   sample->label = (label != NULL) ? strdup(label) : NULL;
-   sample->is_major = is_major;
-   slope_list_append(self->sample_list, sample);
+  self->mode = SLOPE_SAMPLER_MANUAL;
+  for (k = 0; k < n_samples; ++k) {
+    slope_sampler_add_sample(
+        self, sample_array[k].coord, sample_array[k].label);
+  }
 }
 
-
-void slope_sampler_set_samples (slope_sampler_t *self, const slope_sample_t *samples, int sample_count)
-{
-   int k;
-   self->mode = SLOPE_SAMPLER_CUSTOM_SAMPLES;
-   slope_sampler_clear(self);
-   for (k=0; k<sample_count; k++)
-      slope_sampler_add_sample(self, samples[k].value, samples[k].label, SLOPE_TRUE);
+GList *slope_sampler_get_sample_list(SlopeSampler *self) {
+  return self->sample_list;
 }
 
-
-void slope_sampler_auto_sample_decimal (slope_sampler_t *self, double min, double max, double hint)
-{
-    double coord;
-    double first_tick;
-    double v_diff, pow_diff;
-    double samp_spac;
-    int k;
-    
-    if (self->min == min && self->max == max && self->hint == hint) {
-        return;
-    }
-    self->min = min;
-    self->max = max;
-    self->hint = hint;
-    
-    v_diff = max - min;
-    pow_diff = round(log10(v_diff));
-    samp_spac = pow(10.0, pow_diff-1.0);
-   
-    if ((v_diff/samp_spac) > (hint+5.0))
-       samp_spac *= 5.0;
-    if ((v_diff/samp_spac) < (hint-5.0))
-       samp_spac /= 5.0;
-   
-    if (min < 0.0) {
-        first_tick = -floor(fabs(min)/samp_spac) * samp_spac;
-    } else {
-        first_tick = floor(fabs(min)/samp_spac + 1.0) * samp_spac;
-    }
-
-    slope_sampler_clear(self);
-    samp_spac /= 4.0;
-    coord = first_tick;
-    k = 0;
-    while (coord <= max) {
-       char buf[16];
-       slope_bool_t is_major = (k%4 == 0) ? SLOPE_TRUE : SLOPE_FALSE;
-       if (is_major) {
-            /* sometimes 0.0 is displayed -0.0, thats weird */
-            if (coord == -0.0) coord = 0.0;
-            sprintf(buf, "%2.2f", coord);
-            slope_sampler_add_sample(self, coord, buf, SLOPE_TRUE);
-       }
-       else {
-           slope_sampler_add_sample(self, coord, NULL, SLOPE_FALSE);
-       }
-       coord += samp_spac;
-       k += 1;
-    }
+void _sampler_delete_sample(gpointer data) {
+  g_free(((SlopeSample *) data)->label);
+  g_free(data);
 }
 
+guint32 slope_sampler_get_mode(SlopeSampler *self) { return self->mode; }
 
-void slope_sampler_set_mode (slope_sampler_t *self, slope_sampler_mode_t mode)
-{
-    self->mode = mode;
+void slope_sampler_auto_sample_decimal(
+    SlopeSampler *self, double min, double max, double hint) {
+  double coord;
+  double first_tick;
+  double v_diff, pow_diff;
+  double samp_spac;
+  int k;
+
+  if (self->min == min && self->max == max && self->hint == hint) {
+    return;
+  }
+
+  self->min = min;
+  self->max = max;
+  self->hint = hint;
+
+  v_diff = max - min;
+  pow_diff = round(log10(v_diff));
+  samp_spac = pow(10.0, pow_diff - 1.0);
+
+  if ((v_diff / samp_spac) > (hint + 5.0)) samp_spac *= 2.0;
+  if ((v_diff / samp_spac) < (hint - 5.0)) samp_spac /= 2.0;
+  if ((v_diff / samp_spac) > (hint + 5.0)) samp_spac *= 2.0;
+  if ((v_diff / samp_spac) < (hint - 5.0)) samp_spac /= 2.0;
+
+  if (min < 0.0) {
+    first_tick = -floor(fabs(min) / samp_spac) * samp_spac;
+  } else {
+    first_tick = floor(fabs(min) / samp_spac + 1.0) * samp_spac;
+  }
+
+  slope_sampler_clear(self);
+  coord = first_tick;
+  k = 0;
+
+  while (coord <= max) {
+    char buf[16];
+    static const char *const format[] = {"%2.1f", "%2.1e"};
+    int format_idx = 0;
+
+    /* sometimes 0.0 is displayed -0.0, or even something different
+       than zerothats weird */
+    if (coord == -0.0) coord = 0.0;
+    if ((fabs(coord) / v_diff) < 1e-4) coord = 0.0;
+    /* if numbers are too extreme use power of ten notation */
+    if (coord > 1e4 || coord < -1e4) format_idx = 1;
+
+    sprintf(buf, format[format_idx], coord);
+    slope_sampler_add_sample(self, coord, buf);
+
+    coord += samp_spac;
+    k += 1;
+  }
 }
 
+const SlopeSample slope_sampler_pi_samples_array[] = {
+    {0.0 * G_PI, "0"},     {0.5 * G_PI, "π/2"},   {1.0 * G_PI, "π"},
+    {1.5 * G_PI, "3π/2"},  {2.0 * G_PI, "2π"},    {2.5 * G_PI, "5π/2"},
+    {3.0 * G_PI, "3π"},    {3.5 * G_PI, "7π/2"},  {4.0 * G_PI, "4π"},
+    {4.5 * G_PI, "9π/2"},  {5.0 * G_PI, "5π"},    {5.5 * G_PI, "11π/2"},
+    {6.0 * G_PI, "6π"},    {6.5 * G_PI, "13π/2"}, {7.0 * G_PI, "7π"},
+    {7.5 * G_PI, "15π/2"}, {8.0 * G_PI, "8π"},    {8.5 * G_PI, "17π/2"},
+    {9.0 * G_PI, "9π"},    {9.5 * G_PI, "19π/2"}, {10.0 * G_PI, "20π"}};
 
-slope_sampler_mode_t slope_sampler_get_mode (const slope_sampler_t *self)
-{
-    return self->mode;
-}
+const SlopeSample *const slope_sampler_pi_samples =
+    slope_sampler_pi_samples_array;
 
-/* slope/sampler.c */
+const SlopeSample slope_sampler_month_samples_array[] = {
+    {1.0, "Jan"}, {2.0, "Feb"},  {3.0, "Mar"},  {4.0, "Apr"},
+    {5.0, "May"}, {6.0, "Jun"},  {7.0, "Jul"},  {8.0, "Aug"},
+    {9.0, "Sep"}, {10.0, "Oct"}, {11.0, "Nov"}, {12.0, "Dez"}};
+
+const SlopeSample *const slope_sampler_month_samples =
+    slope_sampler_month_samples_array;
+
+/* slope/xyaxis-sampler.c */

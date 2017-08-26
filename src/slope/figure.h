@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,51 +18,81 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_FIGURE__
-#define __SLOPE_FIGURE__
+#ifndef SLOPE_FIGURE_H
+#define SLOPE_FIGURE_H
 
-#include <slope/drawing.h>
-#include <slope/list.h>
+#include <glib-object.h>
 #include <slope/legend.h>
 
-#define SLOPE_FIGURE(instance) ((slope_figure_t*) (instance))
-#define SLOPE_FIGURE_CLASS(instance) ((slope_figure_class_t*) (instance))
-#define SLOPE_FIGURE_GET_CLASS(instance) SLOPE_FIGURE_CLASS(SLOPE_FIGURE(instance)->_class)
+#define SLOPE_FIGURE_TYPE (slope_figure_get_type())
+#define SLOPE_FIGURE(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), SLOPE_FIGURE_TYPE, SlopeFigure))
+#define SLOPE_FIGURE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass), SLOPE_FIGURE_TYPE, SlopeFigureClass))
+#define SLOPE_IS_FIGURE(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), SLOPE_FIGURE_TYPE))
+#define SLOPE_IS_FIGURE_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), SLOPE_FIGURE_TYPE))
+#define SLOPE_FIGURE_GET_CLASS(obj) \
+  (SLOPE_FIGURE_CLASS(G_OBJECT_GET_CLASS(obj)))
 
 SLOPE_BEGIN_DECLS
 
-struct _slope_figure_class {
-    void (*init) (slope_figure_t*);
-    void (*finalize) (slope_figure_t*);
-    void (*draw) (slope_figure_t*, const slope_rect_t*, cairo_t*);
-    void (*set_color_scheme) (slope_figure_t*, slope_color_t, slope_color_t, slope_color_t);
+typedef enum _SlopeFigureFrameMode {
+  SLOPE_FIGURE_RECTANGLE,
+  SLOPE_FIGURE_ROUNDRECTANGLE,
+} SlopeFigureFrameMode;
+
+struct _SlopeFigure {
+  GObject parent;
+
+  /* Padding to allow adding up to 4 members
+     without breaking ABI. */
+  gpointer padding[4];
 };
 
+typedef struct _SlopeFigureClass {
+  GObjectClass parent_class;
 
-struct _slope_figure {
-   struct _slope_figure_class *_class;
-   void *_private;
-};
+  void (*draw)(SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+  void (*add_scale)(SlopeFigure *self, SlopeScale *scale);
 
+  /* Padding to allow adding up to 4 members
+     without breaking ABI. */
+  gpointer padding[4];
+} SlopeFigureClass;
 
-slope_figure_t* slope_figure_new (const char *name);
-void slope_figure_destroy (slope_figure_t *self);
-void slope_figure_init (slope_figure_t *self);
-slope_list_t* slope_figure_get_scale_list (const slope_figure_t *self);
-slope_scale_t* slope_figure_get_reference_scale (const slope_figure_t *self);
-void slope_figure_finalize (slope_figure_t *self);
-slope_item_t* slope_figure_get_legend (const slope_figure_t *self);
-void slope_figure_set_name (slope_figure_t *self, const char *name);
-const char* slope_figure_get_name (const slope_figure_t *self);
-void slope_figure_get_rect (const slope_figure_t *self, slope_rect_t *rect);
-void slope_figure_add_scale (slope_figure_t *self, slope_scale_t *scale);
-void slope_figure_draw (slope_figure_t *self, const slope_rect_t *rect, cairo_t *cr);
-int slope_figure_write_to_png (slope_figure_t *self, const char *filename, int width, int height);
-int slope_figure_write_to_svg (slope_figure_t *self, const char *filename, int width, int height);
-int slope_figure_write_to_pdf (slope_figure_t *self, const char *filename, int width, int height);
-void slope_figure_set_color_scheme (slope_figure_t *self, slope_color_t background,
-                                    slope_color_t foreground, slope_color_t extra_color);
+GType slope_figure_get_type(void) G_GNUC_CONST;
+
+SlopeFigure *slope_figure_new(void);
+
+GList *slope_figure_get_scale_list(SlopeFigure *self);
+
+void slope_figure_add_scale(SlopeFigure *self, SlopeScale *scale);
+
+SlopeColor slope_figure_get_background_color(SlopeFigure *self);
+
+void slope_figure_set_background_color(SlopeFigure *self, SlopeColor color);
+
+gboolean slope_figure_get_is_managed(SlopeFigure *self);
+
+void slope_figure_set_is_managed(SlopeFigure *self, gboolean managed);
+
+void slope_figure_draw(SlopeFigure *self, const SlopeRect *rect, cairo_t *cr);
+
+int slope_figure_write_to_png(
+    SlopeFigure *self, const char *filename, int width, int height);
+
+int slope_figure_write_to_pdf(
+    SlopeFigure *self, const char *filename, int width, int height);
+
+int slope_figure_write_to_svg(
+    SlopeFigure *self, const char *filename, int width, int height);
+
+SlopeView *slope_figure_get_view(SlopeFigure *self);
+
+SlopeItem *slope_figure_get_legend(SlopeFigure *self);
 
 SLOPE_END_DECLS
 
-#endif /*__SLOPE_FIGURE__*/
+#endif /* SLOPE_FIGURE_H */

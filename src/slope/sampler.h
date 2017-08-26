@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015  Elvis Teixeira
+ * Copyright (C) 2017  Elvis Teixeira
  *
  * This source code is free software: you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,54 +18,49 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __SLOPE_SAMPLER__
-#define __SLOPE_SAMPLER__
+#ifndef SLOPE_SAMPLER_H
+#define SLOPE_SAMPLER_H
 
-#include <slope/list.h>
+#include <slope/drawing.h>
 
-#define SLOPE_SAMPLE(instance) ((slope_sample_t*) (instance))
-#define SLOPE_SAMPLER(instance) ((slope_sampler_t*) (instance))
+#define SLOPE_XYAXIS_SAMPLE(ptr) ((SlopeSample *) (ptr))
 
 SLOPE_BEGIN_DECLS
 
-typedef struct _slope_sampler slope_sampler_t;
-typedef struct _slope_sample slope_sample_t;
+typedef enum _SlopeSamplerMode {
+  SLOPE_SAMPLER_MANUAL,
+  SLOPE_SAMPLER_AUTO_DECIMAL
+} SlopeSamplerMode;
 
+typedef struct _SlopeSample {
+  double coord;
+  char *label;
+} SlopeSample;
 
-struct _slope_sample
-{
-   double value;
-   char *label;
-   slope_bool_t is_major;
-};
+typedef struct _SlopeSampler SlopeSampler;
 
+SlopeSampler *slope_sampler_new(void);
 
-typedef enum _slope_sampler_mode
-{
-    SLOPE_SAMPLER_AUTO_DECIMAL,
-    SLOPE_SAMPLER_CUSTOM_SAMPLES
-}
-slope_sampler_mode_t;
+void slope_sampler_destroy(SlopeSampler *self);
 
+void slope_sampler_clear(SlopeSampler *self);
 
-slope_sampler_t* slope_sampler_new ();
+void slope_sampler_add_sample(SlopeSampler *self, double coord, char *label);
 
-void slope_sampler_destroy (slope_sampler_t *self);
+void slope_sampler_set_samples(
+    SlopeSampler *self, const SlopeSample *sample_array, int n_samples);
 
-slope_list_t* slope_sampler_get_sample_list (slope_sampler_t *self);
+GList *slope_sampler_get_sample_list(SlopeSampler *self);
 
-void slope_sampler_clear (slope_sampler_t *self);
+guint32 slope_sampler_get_mode(SlopeSampler *self);
 
-void slope_sampler_add_sample (slope_sampler_t *self, double value, const char *label, slope_bool_t is_major);
+void slope_sampler_auto_sample_decimal(
+    SlopeSampler *self, double min, double max, double hint);
 
-void slope_sampler_set_samples (slope_sampler_t *self, const slope_sample_t *samples, int sample_count);
+extern const SlopeSample *const slope_sampler_pi_samples;
 
-void slope_sampler_set_mode (slope_sampler_t *self, slope_sampler_mode_t mode);
-
-slope_sampler_mode_t slope_sampler_get_mode (const slope_sampler_t *self);
-
-void slope_sampler_auto_sample_decimal (slope_sampler_t *self, double min, double max, double hint);
+extern const SlopeSample *const slope_sampler_month_samples;
 
 SLOPE_END_DECLS
 
-#endif /*__SLOPE_SAMPLER__*/
+#endif /* SLOPE_SAMPLER_H */
