@@ -1,7 +1,7 @@
 project(slope C)
 cmake_minimum_required(VERSION 2.8)
 
-set(SLOPE_USE_GTK "TRUE")
+set(SLOPE_USE_GTK "FALSE")
 set(SLOPE_ENABLE_DEBUG "TRUE")
 
 find_package(PkgConfig REQUIRED)
@@ -10,7 +10,7 @@ if(SLOPE_USE_GTK MATCHES "TRUE")
    PKG_CHECK_MODULES(DEPENDENCY "gtk+-3.0")
 else()
    set(SLOPE_HAVE_GTK 0)
-   PKG_CHECK_MODULES(DEPENDENCY "cairo")
+   PKG_CHECK_MODULES(DEPENDENCY "cairo" "glib-2.0" "gobject-2.0")
 endif()
 
 if(SLOPE_ENABLE_DEBUG MATCHES "TRUE")

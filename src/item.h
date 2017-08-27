@@ -84,7 +84,9 @@ void slope_item_set_is_visible(SlopeItem *self, gboolean visible);
 
 char *slope_item_get_name(SlopeItem *self);
 
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_item_get_view(SlopeItem *self);
+#endif
 
 void slope_item_set_name(SlopeItem *self, const char *name);
 

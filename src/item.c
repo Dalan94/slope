@@ -24,7 +24,9 @@
 typedef struct _SlopeItemPrivate {
   SlopeFigure *figure;
   SlopeScale *scale;
+#if SLOPE_HAVE_GTK == 1
   SlopeView *view;
+#endif
   char *name;
   gboolean managed;
   gboolean visible;
@@ -52,7 +54,9 @@ static void slope_item_init(SlopeItem *self) {
   SlopeItemPrivate *priv = SLOPE_ITEM_GET_PRIVATE(self);
   priv->figure = NULL;
   priv->scale = NULL;
+#if SLOPE_HAVE_GTK == 1
   priv->view = NULL;
+#endif
   priv->name = NULL;
   priv->managed = TRUE;
   priv->visible = TRUE;
@@ -74,8 +78,10 @@ void _item_set_scale(SlopeItem *self, SlopeScale *scale) {
   /* TODO if it has children */
   priv->scale = scale;
   priv->figure = (scale != NULL) ? slope_scale_get_figure(scale) : NULL;
+#if SLOPE_HAVE_GTK == 1
   priv->view =
       (priv->figure != NULL) ? slope_figure_get_view(priv->figure) : NULL;
+#endif
 }
 
 void slope_item_detach(SlopeItem *self) {
@@ -84,7 +90,9 @@ void slope_item_detach(SlopeItem *self) {
     slope_scale_remove_item(priv->scale, self);
     priv->scale = NULL;
     priv->figure = NULL;
+#if SLOPE_HAVE_GTK == 1
     priv->view = NULL;
+#endif
   }
 }
 
@@ -212,9 +220,11 @@ SlopeFigure *slope_item_get_figure(SlopeItem *self) {
   return SLOPE_ITEM_GET_PRIVATE(self)->figure;
 }
 
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_item_get_view(SlopeItem *self) {
   return SLOPE_ITEM_GET_PRIVATE(self)->view;
 }
+#endif
 
 /* slope/item.c */
 

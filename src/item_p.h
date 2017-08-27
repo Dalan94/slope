@@ -22,7 +22,9 @@
 #define SLOPE_ITEM_P_H
 
 #include "item.h"
+#if SLOPE_HAVE_GTK == 1
 #include "view.h"
+#endif
 
 void _item_draw(SlopeItem *self, cairo_t *cr);
 

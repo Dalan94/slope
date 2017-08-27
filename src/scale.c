@@ -23,7 +23,9 @@
 
 typedef struct _SlopeScalePrivate {
   SlopeFigure *figure;
+#if SLOPE_HAVE_GTK == 1
   SlopeView *view;
+#endif
   GList *item_list;
   SlopeColor background_color;
   gboolean managed;
@@ -63,7 +65,9 @@ static void slope_scale_class_init(SlopeScaleClass *klass) {
 static void slope_scale_init(SlopeScale *self) {
   SlopeScalePrivate *priv = SLOPE_SCALE_GET_PRIVATE(self);
   priv->figure = NULL;
+#if SLOPE_HAVE_GTK == 1
   priv->view = NULL;
+#endif
   priv->item_list = NULL;
   priv->background_color = SLOPE_WHITE;
   priv->managed = TRUE;
@@ -210,7 +214,9 @@ void _scale_set_figure(SlopeScale *self, SlopeFigure *figure) {
     return;
   }
   priv->figure = figure;
+#if SLOPE_HAVE_GTK == 1
   priv->view = (figure != NULL) ? slope_figure_get_view(figure) : NULL;
+#endif
   iter = priv->item_list;
   while (iter != NULL) {
     SlopeItem *item = SLOPE_ITEM(iter->data);
@@ -284,7 +290,9 @@ void slope_scale_detach(SlopeScale *self) {
   if (priv->figure != NULL) {
     /* TODO: implement slope_figure_remove_scale() and use it here */
     priv->figure = NULL;
+#if SLOPE_HAVE_GTK == 1
     priv->view = NULL;
+#endif
   }
 }
 
@@ -292,9 +300,11 @@ SlopeFigure *slope_scale_get_figure(SlopeScale *self) {
   return SLOPE_SCALE_GET_PRIVATE(self)->figure;
 }
 
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_scale_get_view(SlopeScale *self) {
   return SLOPE_SCALE_GET_PRIVATE(self)->view;
 }
+#endif
 
 gboolean slope_scale_get_is_managed(SlopeScale *self) {
   return SLOPE_SCALE_GET_PRIVATE(self)->managed;

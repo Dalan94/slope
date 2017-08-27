@@ -90,7 +90,9 @@ SlopeFigure *slope_scale_get_figure(SlopeScale *self);
 
 SlopeItem *slope_scale_get_legend(SlopeScale *self);
 
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_scale_get_view(SlopeScale *self);
+#endif
 
 gboolean slope_scale_get_is_managed(SlopeScale *self);
 

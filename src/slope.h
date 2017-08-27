@@ -28,12 +28,15 @@
 #include "figure.h"
 #include "item.h"
 #include "scale.h"
+#if SLOPE_HAVE_GTK == 1
 #include "view.h"
+#endif
 
 #include "xyaxis.h"
 #include "xyscale.h"
 #include "xyseries.h"
-
+#if SLOPE_HAVE_GTK == 1
 #include "chart.h"
+#endif
 
 #endif /* SLOPE_SLOPE_H */

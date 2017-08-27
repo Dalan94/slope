@@ -89,7 +89,9 @@ int slope_figure_write_to_pdf(
 int slope_figure_write_to_svg(
     SlopeFigure *self, const char *filename, int width, int height);
 
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_figure_get_view(SlopeFigure *self);
+#endif
 
 SlopeItem *slope_figure_get_legend(SlopeFigure *self);
 

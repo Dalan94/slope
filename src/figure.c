@@ -24,10 +24,14 @@
 #include "figure_p.h"
 #include "item_p.h"
 #include "scale_p.h"
+#if SLOPE_HAVE_GTK == 1
 #include "view.h"
+#endif
 
 typedef struct _SlopeFigurePrivate {
+#if SLOPE_HAVE_GTK == 1
   SlopeView *view;
+#endif
   GList *scale_list;
   SlopeColor background_color;
   gboolean managed;
@@ -66,7 +70,9 @@ static void slope_figure_class_init(SlopeFigureClass *klass) {
 
 static void slope_figure_init(SlopeFigure *self) {
   SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
+#if SLOPE_HAVE_GTK == 1
   priv->view = NULL;
+#endif
   priv->scale_list = NULL;
   priv->background_color = SLOPE_WHITE;
   priv->managed = TRUE;
@@ -198,6 +204,8 @@ static void _figure_clear_scale_list(gpointer data) {
   }
 }
 
+
+#if SLOPE_HAVE_GTK == 1
 void _figure_set_view(SlopeFigure *self, SlopeView *view) {
   SlopeFigurePrivate *priv = SLOPE_FIGURE_GET_PRIVATE(self);
   GList *iter;
@@ -209,6 +217,7 @@ void _figure_set_view(SlopeFigure *self, SlopeView *view) {
     iter = iter->next;
   }
 }
+#endif
 
 int slope_figure_write_to_png(
     SlopeFigure *self, const char *filename, int width, int height) {
@@ -328,10 +337,13 @@ void _figure_handle_mouse_event(SlopeFigure *self, SlopeMouseEvent *event) {
     _scale_handle_mouse_event(scale, event);
     iter = iter->next;
   }
+  
+#if SLOPE_HAVE_GTK == 1
   if (priv->redraw_requested == TRUE) {
     slope_view_redraw(priv->view);
     priv->redraw_requested = FALSE;
   }
+#endif
 }
 
 void _figure_request_redraw(SlopeFigure *self) {
@@ -350,9 +362,12 @@ void slope_figure_set_background_color(SlopeFigure *self, SlopeColor color) {
   SLOPE_FIGURE_GET_PRIVATE(self)->background_color = color;
 }
 
+
+#if SLOPE_HAVE_GTK == 1
 SlopeView *slope_figure_get_view(SlopeFigure *self) {
   return SLOPE_FIGURE_GET_PRIVATE(self)->view;
 }
+#endif
 
 gboolean slope_figure_get_is_managed(SlopeFigure *self) {
   return SLOPE_FIGURE_GET_PRIVATE(self)->managed;

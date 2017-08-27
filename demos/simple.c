@@ -22,15 +22,12 @@
 #include <slope.h>
 
 int main(int argc, char *argv[]) {
-  GtkWidget *chart;
+  SlopeFigure *figure;
   SlopeScale *scale;
   SlopeItem *series;
   double *x, *y;
 
-  gtk_init(&argc, &argv);
-  chart = slope_chart_new();
-
-  g_signal_connect(G_OBJECT(chart), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+  figure = slope_figure_new();
 
   /* create some sinusoidal data points */
   long k, n = 50;
@@ -44,17 +41,14 @@ int main(int argc, char *argv[]) {
   }
 
   scale = slope_xyscale_new();
-  slope_chart_add_scale(SLOPE_CHART(chart), scale);
+  slope_figure_add_scale(SLOPE_FIGURE(figure), scale);
 
   series = slope_xyseries_new_filled("Sine", x, y, n, "kOr");
   slope_scale_add_item(scale, series);
 
-  slope_chart_write_to_png(SLOPE_CHART(chart), "test.png", 500, 300);
-  slope_chart_write_to_svg(SLOPE_CHART(chart), "test.svg", 500, 300);
-  slope_chart_write_to_pdf(SLOPE_CHART(chart), "test.pdf", 500, 300);
-
-  gtk_widget_show_all(chart);
-  gtk_main();
+  slope_figure_write_to_png(SLOPE_FIGURE(figure), "test.png", 500, 300);
+  slope_figure_write_to_svg(SLOPE_FIGURE(figure), "test.svg", 500, 300);
+  slope_figure_write_to_pdf(SLOPE_FIGURE(figure), "test.pdf", 500, 300);
 
   g_free(x);
   g_free(y);
