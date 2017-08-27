@@ -55,6 +55,14 @@ configure_file(
 
 add_library(slope STATIC ${slope_SRCS}  ${slope_HDRS})
 
+
+TARGET_LINK_LIBRARIES(
+	slope
+	${CAIRO_LIBRARIES}
+	${GLIB_LIBRARIES}
+	${GOBJECT_LIBRARIES}
+)
+
 install(TARGETS slope DESTINATION /usr/lib)
 install(FILES ${slope_HDRS} DESTINATION /usr/include/slope)
 install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION /usr/include/slope)
