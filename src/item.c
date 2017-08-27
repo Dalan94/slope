@@ -18,8 +18,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/item_p.h>
-#include <slope/scale_p.h>
+#include "item_p.h"
+#include "scale_p.h"
 
 typedef struct _SlopeItemPrivate {
   SlopeFigure *figure;

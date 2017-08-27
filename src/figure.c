@@ -21,10 +21,10 @@
 #include <cairo-pdf.h>
 #include <cairo-svg.h>
 
-#include <slope/figure_p.h>
-#include <slope/item_p.h>
-#include <slope/scale_p.h>
-#include <slope/view.h>
+#include "figure_p.h"
+#include "item_p.h"
+#include "scale_p.h"
+#include "view.h"
 
 typedef struct _SlopeFigurePrivate {
   SlopeView *view;

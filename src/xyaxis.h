@@ -21,8 +21,8 @@
 #ifndef SLOPE_XYAXIS_H
 #define SLOPE_XYAXIS_H
 
-#include <slope/item.h>
-#include <slope/sampler.h>
+#include "item.h"
+#include "sampler.h"
 
 #define SLOPE_XYAXIS_TYPE (slope_xyaxis_get_type())
 #define SLOPE_XYAXIS(obj) \

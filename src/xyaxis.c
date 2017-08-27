@@ -18,8 +18,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/scale.h>
-#include <slope/xyaxis.h>
+#include "scale.h"
+#include "xyaxis.h"
 
 typedef struct _SlopeXyAxisPrivate {
   guint32 orientation;

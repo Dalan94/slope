@@ -18,9 +18,9 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/item_p.h>
-#include <slope/legend.h>
-#include <slope/scale.h>
+#include "item_p.h"
+#include "legend.h"
+#include "scale.h"
 
 typedef struct _SlopeLegendPrivate {
   guint32 orientation;

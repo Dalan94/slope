@@ -1,10 +1,6 @@
 project(slope C)
 cmake_minimum_required(VERSION 2.8)
 
-set(SLOPE_MAJOR_VERSION 2)
-set(SLOPE_MINOR_VERSION 5)
-set(SLOPE_PATCH_VERSION 0)
-
 set(SLOPE_USE_GTK "TRUE")
 set(SLOPE_ENABLE_DEBUG "TRUE")
 

@@ -21,7 +21,7 @@
 #ifndef SLOPE_SCALE_H
 #define SLOPE_SCALE_H
 
-#include <slope/legend.h>
+#include "legend.h"
 
 #define SLOPE_SCALE_TYPE (slope_scale_get_type())
 #define SLOPE_SCALE(obj) \

@@ -21,7 +21,7 @@
 #ifndef SLOPE_SAMPLER_H
 #define SLOPE_SAMPLER_H
 
-#include <slope/drawing.h>
+#include "drawing.h"
 
 #define SLOPE_XYAXIS_SAMPLE(ptr) ((SlopeSample *) (ptr))
 

@@ -22,7 +22,7 @@
 #define SLOPE_VIEW_H
 
 #include <gtk/gtk.h>
-#include <slope/figure.h>
+#include "figure.h"
 
 #define SLOPE_VIEW_TYPE (slope_view_get_type())
 #define SLOPE_VIEW(obj) \

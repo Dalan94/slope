@@ -18,22 +18,17 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SLOPE_SLOPE_H
-#define SLOPE_SLOPE_H
+#ifndef SLOPE_SCALE_P_H
+#define SLOPE_SCALE_P_H
 
-/* this header is a shortcut to include the
- * basic and most often used slope headers
- * all at once */
+#include "scale.h"
 
-#include <slope/figure.h>
-#include <slope/item.h>
-#include <slope/scale.h>
-#include <slope/view.h>
+void _scale_set_figure(SlopeScale *self, SlopeFigure *figure);
 
-#include <slope/xyaxis.h>
-#include <slope/xyscale.h>
-#include <slope/xyseries.h>
+void _scale_draw(SlopeScale *self, const SlopeRect *rect, cairo_t *cr);
 
-#include <slope/chart.h>
+void _scale_handle_mouse_event(SlopeScale *self, SlopeMouseEvent *event);
 
-#endif /* SLOPE_SLOPE_H */
+void _scale_mouse_event_impl(SlopeScale *self, SlopeMouseEvent *event);
+
+#endif /* SLOPE_SCALE_P_H */

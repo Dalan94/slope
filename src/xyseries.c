@@ -18,8 +18,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/scale.h>
-#include <slope/xyseries.h>
+#include "scale.h"
+#include "xyseries.h"
 
 typedef struct _SlopeXySeriesPrivate {
   double x_min, x_max;

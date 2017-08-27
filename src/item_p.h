@@ -18,17 +18,20 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SLOPE_SCALE_P_H
-#define SLOPE_SCALE_P_H
+#ifndef SLOPE_ITEM_P_H
+#define SLOPE_ITEM_P_H
 
-#include <slope/scale.h>
+#include "item.h"
+#include "view.h"
 
-void _scale_set_figure(SlopeScale *self, SlopeFigure *figure);
+void _item_draw(SlopeItem *self, cairo_t *cr);
 
-void _scale_draw(SlopeScale *self, const SlopeRect *rect, cairo_t *cr);
+void _item_draw_thumb(SlopeItem *self, cairo_t *cr, const SlopePoint *pos);
 
-void _scale_handle_mouse_event(SlopeScale *self, SlopeMouseEvent *event);
+void _item_set_scale(SlopeItem *self, SlopeScale *scale);
 
-void _scale_mouse_event_impl(SlopeScale *self, SlopeMouseEvent *event);
+void _item_handle_mouse_event(SlopeItem *self, SlopeMouseEvent *event);
 
-#endif /* SLOPE_SCALE_P_H */
+void _item_mouse_event_impl(SlopeItem *self, SlopeMouseEvent *event);
+
+#endif /* SLOPE_ITEM_P_H */

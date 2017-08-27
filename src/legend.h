@@ -21,7 +21,7 @@
 #ifndef SLOPE_LEGEND_H
 #define SLOPE_LEGEND_H
 
-#include <slope/item.h>
+#include "item.h"
 
 #define SLOPE_LEGEND_TYPE (slope_legend_get_type())
 #define SLOPE_LEGEND(obj) \

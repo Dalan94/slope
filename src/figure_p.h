@@ -21,7 +21,7 @@
 #ifndef SLOPE_FIGURE_P_H
 #define SLOPE_FIGURE_P_H
 
-#include <slope/figure.h>
+#include "figure.h"
 
 void _figure_set_view(SlopeFigure *self, SlopeView *view);
 

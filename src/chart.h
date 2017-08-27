@@ -21,7 +21,7 @@
 #ifndef SLOPE_CHART_H
 #define SLOPE_CHART_H
 
-#include <slope/view.h>
+#include "view.h"
 
 #define SLOPE_CHART_TYPE (slope_chart_get_type())
 #define SLOPE_CHART(obj) \

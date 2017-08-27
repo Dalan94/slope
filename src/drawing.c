@@ -19,7 +19,7 @@
  */
 
 #include <math.h>
-#include <slope/drawing.h>
+#include "drawing.h"
 
 #define __SIMILAR_DOUBLE(x1, x2) ((fabs((x2) - (x1)) < 1e-4) ? TRUE : FALSE)
 

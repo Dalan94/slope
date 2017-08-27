@@ -22,7 +22,7 @@
 #define SLOPE_FIGURE_H
 
 #include <glib-object.h>
-#include <slope/legend.h>
+#include "legend.h"
 
 #define SLOPE_FIGURE_TYPE (slope_figure_get_type())
 #define SLOPE_FIGURE(obj) \

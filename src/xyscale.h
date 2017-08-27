@@ -21,8 +21,8 @@
 #ifndef SLOPE_XYSCALE_H
 #define SLOPE_XYSCALE_H
 
-#include <slope/scale.h>
-#include <slope/xyaxis.h>
+#include "scale.h"
+#include "xyaxis.h"
 
 #define SLOPE_XYSCALE_TYPE (slope_xyscale_get_type())
 #define SLOPE_XYSCALE(obj) \

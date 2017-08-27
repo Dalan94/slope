@@ -18,7 +18,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <slope/chart.h>
+#include <chart.h>
 
 typedef struct _SlopeChartPrivate {
   GtkWidget *header;

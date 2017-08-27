@@ -21,7 +21,7 @@
 #ifndef SLOPE_XYSERIES_H
 #define SLOPE_XYSERIES_H
 
-#include <slope/item.h>
+#include "item.h"
 
 #define SLOPE_XYSERIES_TYPE (slope_xyseries_get_type())
 #define SLOPE_XYSERIES(obj) \

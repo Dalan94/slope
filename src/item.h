@@ -22,7 +22,7 @@
 #define SLOPE_ITEM_H
 
 #include <glib-object.h>
-#include <slope/drawing.h>
+#include "drawing.h"
 
 #define SLOPE_ITEM_TYPE (slope_item_get_type())
 #define SLOPE_ITEM(obj) \

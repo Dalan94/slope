@@ -20,7 +20,7 @@
 
 #include <gtk/gtk.h>
 #include <math.h>
-#include <slope/slope.h>
+#include <slope.h>
 
 /* globals. yes, good or not, it is a demo */
 const long n = 100;

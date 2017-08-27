@@ -19,7 +19,7 @@
  */
 
 #include <math.h>
-#include <slope/slope.h>
+#include <slope.h>
 
 SlopeScale *scale;
 SlopeItem *series;
