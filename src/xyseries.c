@@ -90,11 +90,11 @@ SlopeItem *slope_xyseries_new(void) {
 
 SlopeItem *slope_xyseries_new_filled(
     const char *name, const double *x_vec, const double *y_vec, long n_pts,
-    const char *style) {
+    SlopeColor stroke_color, SlopeColor fill_color, SlopeXySeriesMode mode) {
   SlopeItem *self = SLOPE_ITEM(g_object_new(SLOPE_XYSERIES_TYPE, NULL));
   slope_item_set_name(self, name);
   slope_xyseries_update_data(SLOPE_XYSERIES(self), x_vec, y_vec, n_pts);
-  slope_xyseries_set_style(SLOPE_XYSERIES(self), style);
+  slope_xyseries_set_style(SLOPE_XYSERIES(self), stroke_color, fill_color, mode);
   return self;
 }
 
@@ -328,26 +328,11 @@ int _xyseries_parse_mode(const char *c) {
   return mode;
 }
 
-void slope_xyseries_set_style(SlopeXySeries *self, const char *style) {
+void slope_xyseries_set_style(SlopeXySeries *self, SlopeColor stroke_color, SlopeColor fill_color, SlopeXySeriesMode mode) {
   SlopeXySeriesPrivate *priv = SLOPE_XYSERIES_GET_PRIVATE(self);
-  SlopeColor fill_color = SLOPE_RED, stroke_color = SLOPE_BLUE;
   double line_width = 1.5;
   double symbol_stroke_width = 1.0;
-  int mode = SLOPE_SERIES_LINE, k = 0;
-  /* parse the stroke and fill colors */
-  if (style != NULL && style[k] != '\0') {
-    stroke_color = slope_color_parse(style[k++]);
-    fill_color = stroke_color;
-  }
-  /* parse the mode (symbol) */
-  if (style != NULL && style[k] != '\0') {
-    mode = _xyseries_parse_mode(style + k++);
-  }
-  /* parse an optional fill color (if you like it
-   * diferent from the stroke one) */
-  if (style != NULL && style[k] != '\0') {
-    fill_color = slope_color_parse(style[k++]);
-  }
+  int k = 0;
   if (fill_color == stroke_color) {
     /* for performance, if the fill and stroke colors
        are the same it is better to only fill the forms,

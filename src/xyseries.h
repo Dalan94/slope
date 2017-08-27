@@ -69,7 +69,7 @@ SlopeItem *slope_xyseries_new(void);
 
 SlopeItem *slope_xyseries_new_filled(
     const char *name, const double *x_vec, const double *y_vec, long n_pts,
-    const char *style);
+    SlopeColor stroke_color, SlopeColor fill_color, SlopeXySeriesMode mode);
 
 void slope_xyseries_set_data(
     SlopeXySeries *self, const double *x_vec, const double *y_vec, long n_pts);
@@ -77,7 +77,7 @@ void slope_xyseries_set_data(
 void slope_xyseries_update_data(
     SlopeXySeries *self, const double *x_vec, const double *y_vec, long n_pts);
 
-void slope_xyseries_set_style(SlopeXySeries *self, const char *style);
+void slope_xyseries_set_style(SlopeXySeries *self, SlopeColor stroke_color, SlopeColor fill_color, SlopeXySeriesMode mode);
 
 void slope_xyseries_update(SlopeXySeries *self);
 

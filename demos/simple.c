@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
   scale = slope_xyscale_new();
   slope_figure_add_scale(SLOPE_FIGURE(figure), scale);
 
-  series = slope_xyseries_new_filled("Sine", x, y, n, "kOr");
+  series = slope_xyseries_new_filled("Sine", x, y, n, SLOPE_BLUE, SLOPE_GREEN,SLOPE_SERIES_CIRCLES | SLOPE_SERIES_LINE);
   slope_scale_add_item(scale, series);
 
   slope_figure_write_to_png(SLOPE_FIGURE(figure), "test.png", 500, 300);
