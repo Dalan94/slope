@@ -62,7 +62,3 @@ TARGET_LINK_LIBRARIES(
 	${GLIB_LIBRARIES}
 	${GOBJECT_LIBRARIES}
 )
-
-install(TARGETS slope DESTINATION /usr/lib)
-install(FILES ${slope_HDRS} DESTINATION /usr/include/slope)
-install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION /usr/include/slope)
